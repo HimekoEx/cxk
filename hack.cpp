@@ -139,23 +139,23 @@ __attribute__((constructor)) void FuckMiHoYo()
 }
 
 //SHA256 验证签名
-bool SHA_Check(const char *data, int keys[])
+bool SHA_Check(const char *data, const uint size, int keys[])
 {
     uchar hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
     char hex[65] = "";
 
-    MiHoYoSDK::DecryptAscii(keys, 0xD378);
+    MiHoYoSDK::DecryptAscii(keys, 0x665F);
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, strlen(data));
+    SHA256_Update(&sha256, data, size);
     SHA256_Final(hash, &sha256);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, "%02x", hash[i]);
     hex[64] = '\0';
 
-    MiHoYoSDK::DecryptAscii(keys, 0xCF8A);
-    MiHoYoSDK::CheakAscii(keys, hex, 0x3F5B);
+    MiHoYoSDK::DecryptAscii(keys, 0xB347);
+    MiHoYoSDK::CheakAscii(keys, hex, 0xCB61);
 
     return true;
 }
@@ -163,7 +163,7 @@ bool SHA_Check(const char *data, int keys[])
 //验证回调函数
 bool VerifyBinRsa(const char *buffer, const uint size)
 {
-    return SHA_Check(buffer, MiHoYoSDK::StaticData::binRsaKey);
+    return SHA_Check(buffer, size, MiHoYoSDK::StaticData::binRsaKey);
 }
 
 //jni入口
