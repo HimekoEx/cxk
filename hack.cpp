@@ -1,8 +1,5 @@
 #include <pthread.h>
 
-#include <include/openssl/pkcs7.h>
-#include <include/openssl/x509.h>
-#include <include/openssl/md5.h>
 #include <include/openssl/sha.h>
 
 #include "module.h"
@@ -131,20 +128,6 @@ void *threadFuckingGame(void *arg)
     return NULL;
 }
 
-void *threadFuckingGame2(void *arg)
-{
-    static uint count = 0;
-    while (true)
-    {
-        // count++;
-        // usleep(5000 * 4);
-        sleep(2);
-        MiHoYoSDK::RunTimeLog(MiHoYoSDK::SendJSON("test", "test"));
-    }
-
-    return NULL;
-}
-
 //入口
 __attribute__((constructor)) void FuckMiHoYo()
 {
@@ -153,7 +136,6 @@ __attribute__((constructor)) void FuckMiHoYo()
     MiHoYoSDK::LinkServer(&Sync::InitConfig);
     ReplaceDlopen();
     pthread_create(&ntid, NULL, threadFuckingGame, NULL);
-    // pthread_create(&ntid, NULL, threadFuckingGame2, NULL);
 }
 
 //SHA256 验证签名
@@ -178,45 +160,10 @@ bool SHA_Check(const char *data, int keys[])
     return true;
 }
 
-//提取签名公钥其他信息 TODO
-bool Openssl_Verify(const uchar *signature_msg, uint size)
-{
-    // PKCS7 *p7 = d2i_PKCS7(NULL, &signature_msg, size);             //DER编码转换为PKCS7结构体
-    // STACK_OF(PKCS7_SIGNER_INFO) *sk = PKCS7_get_signer_info(p7);     //获得签名者信息stack
-    // PKCS7_SIGNER_INFO *signInfo = sk_PKCS7_SIGNER_INFO_value(sk, 0); //获得签名者信息
-    // X509 *cert = PKCS7_cert_from_signer_info(p7, signInfo);          //获得签名者证书
-    // ASN1_INTEGER *asn1_i = X509_get_serialNumber(cert);
-    // BIGNUM *bignum = ASN1_INTEGER_to_BN(asn1_i, NULL);
-    // char *hex = BN_bn2hex(bignum);
-
-    // uint length = strlen(hex);
-    // char buf[length + 2];
-    // strcpy(buf, hex);
-    // buf[length] = '\0';
-
-    // LOGE("buf: [%s]", buf);
-
-    // OPENSSL_free(hex);
-    // BN_free(bignum);
-    // ASN1_IA5STRING_free(asn1_i);
-    // X509_free(cert);
-    // sk_PKCS7_SIGNER_INFO_free(sk);
-    // PKCS7_free(p7);
-    return true;
-}
-
 //验证回调函数
 bool VerifyBinRsa(const char *buffer, const uint size)
 {
-    // static int keys[64] = {8741, 8753, 9073, 9081, 8749, 9077, 8737, 8765,
-    //                        9073, 9057, 9085, 9057, 9081, 8737, 9073, 8749,
-    //                        9085, 8737, 9085, 9073, 8761, 9061, 8749, 9033,
-    //                        9085, 9033, 8749, 9077, 9065, 9033, 8765, 9073,
-    //                        9037, 8737, 9037, 9037, 8761, 8753, 9037, 9037,
-    //                        9033, 9085, 8741, 9033, 8741, 9057, 8765, 9061,
-    //                        9069, 9057, 9033, 9061, 9085, 8761, 8753, 9069,
-    //                        8765, 8749, 8765, 9057, 9081, 9061, 8741, 9069};
-    return SHA_Check(buffer, MiHoYoSDK::StaticData::binRsaKey) && Openssl_Verify((uchar *)buffer, size);
+    return SHA_Check(buffer, MiHoYoSDK::StaticData::binRsaKey);
 }
 
 //jni入口

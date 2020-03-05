@@ -109,16 +109,18 @@ extern bool FuckingMTP(int32_t handle);
 
 //zzHook 替换函数
 template <class t1, class t2, class t3>
-inline RetStatus zzReplace(t1 target_ptr, t2 replace_call, t3 origin_call_ptr)
+inline void zzReplace(t1 target_ptr, t2 replace_call, t3 origin_call_ptr)
 {
-    return ZzHookReplace((void *)target_ptr, (void *)replace_call, (void **)origin_call_ptr);
+    if (ZzHookReplace((void *)target_ptr, (void *)replace_call, (void **)origin_call_ptr) < RS_SUCCESS)
+        MiHoYoSDK::RunTimeLog("zzRP Error!") && MiHoYoSDK::CloseChaosCore1("zzReplace error!") && MiHoYoSDK::CloseChaosCore2();
 }
 
 //zzHook 修改指令 & 添加备份
 template <typename t1, typename t2>
-inline RetStatus zzCodePatch(t1 address, t2 code_data, std::map<ulong, ulong> *data = NULL)
+inline void zzCodePatch(t1 address, t2 code_data, std::map<ulong, ulong> *data = NULL)
 {
     if (data != NULL)
         (*data)[address] = *(ulong *)address;
-    return ZzRuntimeCodePatch((void *)address, (void *)&code_data, 4);
+    if (ZzRuntimeCodePatch((void *)address, (void *)&code_data, 4) < RS_SUCCESS)
+        MiHoYoSDK::RunTimeLog("zzCP Error!") && MiHoYoSDK::CloseChaosCore1("zzCodePatch error!") && MiHoYoSDK::CloseChaosCore2();
 }

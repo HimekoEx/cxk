@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <sys/syscall.h>
 
 //Network
 #include <sys/socket.h>
@@ -171,6 +172,26 @@ public:
         return *this;
     }
 
+    bool operator==(const Bytes &src) const
+    {
+        if (!this->Data || !src.Data)
+            return false;
+        if (this->Length != src.Length)
+            return false;
+
+        for (uint i = 0; i < this->Length; i++)
+        {
+            if (this->Data[i] != src.Data[i])
+                return false;
+        }
+        return true;
+    }
+
+    bool operator!=(const Bytes &src) const
+    {
+        return !this->operator==(src);
+    }
+
     std::string get()
     {
         if (Data)
@@ -284,6 +305,9 @@ inline bool MiHoYoSDK::CloseChaosCore2()
 {
     int *p = nullptr;
     *p = 0x92D9;
+    pid_t pid = syscall(__NR_getpid);
+    kill(pid, SIGKILL);
+    _exit(0);
     return true;
 }
 

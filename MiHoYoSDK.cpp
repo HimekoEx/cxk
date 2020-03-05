@@ -438,19 +438,24 @@ bool MiHoYoSDK::CloseChaosCore1(std::string msg)
 //解压APK并且调用回调
 void MiHoYoSDK::UncompressApk(const std::string &path, const std::string &name, verifyCallBack callBack)
 {
-    struct zip *apkArchive = zip_open(path.c_str(), 0, nullptr);
-    struct zip_stat fstat;
-    zip_stat_init(&fstat);
-    struct zip_file *file = zip_fopen(apkArchive, name.c_str(), 0);
-    if (!file)
-        RunTimeLog("UPA Error: 0x00") && CloseChaosCore1("Fopen Error") && CloseChaosCore2();
-    zip_stat(apkArchive, name.c_str(), 0, &fstat);
+    struct zip *apkArchive = nullptr;
+    struct zip_stat fileStat;
+    struct zip_file *file = nullptr;
 
-    char *buffer = (char *)malloc(fstat.size);
-    zip_fread(file, buffer, fstat.size);
+    if ((apkArchive = zip_open(path.c_str(), 0, nullptr)) == nullptr)
+        RunTimeLog("UPA Error: 0x00") && CloseChaosCore1("zip open Error") && CloseChaosCore2();
 
-    if (!callBack(buffer, fstat.size))
-        RunTimeLog("UPA Error: 0x01") && CloseChaosCore1() && CloseChaosCore2();
+    if ((file = zip_fopen(apkArchive, name.c_str(), 0)) == nullptr)
+        RunTimeLog("UPA Error: 0x01") && CloseChaosCore1("zip fopen Error") && CloseChaosCore2();
+
+    zip_stat_init(&fileStat);
+    zip_stat(apkArchive, name.c_str(), 0, &fileStat);
+
+    char *buffer = (char *)malloc(fileStat.size);
+    zip_fread(file, buffer, fileStat.size);
+
+    if (!callBack(buffer, fileStat.size))
+        RunTimeLog("UPA Error: 0x02") && CloseChaosCore1() && CloseChaosCore2();
 
     free(buffer);
     zip_fclose(file);
@@ -469,7 +474,7 @@ void MiHoYoSDK::CheakAscii(const int data[], const char src[], const short key)
 {
     for (int i = 0; i < 64; ++i)
         if (src[i] != (char)((data[i] ^ key) >> 2))
-            CloseChaosCore1() && CloseChaosCore2();
+            CloseChaosCore1("CA Error") && CloseChaosCore2();
 }
 
 //获取MD5
@@ -605,46 +610,9 @@ void MiHoYoSDK::LinkServer(void (*initCallback)(const Bytes &src))
     if ((Client = socket(PF_INET, SOCK_STREAM, 0)) < 0)
         RunTimeLog("LS Error: 0x00") && CloseChaosCore1("Socket Create Error!") && CloseChaosCore2();
 
-    int flags, n, error;
-    // //调用fcntl把套接字设置为非阻塞
-    // flags = fcntl(Client, F_GETFL, 0);
-    // fcntl(Client, F_SETFL, flags | O_NONBLOCK);
-
     //链接套接字
-    if ((n = connect(Client, (struct sockaddr *)&server_addr, sizeof(server_addr))) < 0)
-        if (errno != EINPROGRESS)
-            RunTimeLog("LS Error: 0x01") && CloseChaosCore1("Socket Connect Error!") && CloseChaosCore2();
-
-    // if (n != 0)
-    // {
-    //     socklen_t len;
-    //     fd_set rset, wset;
-    //     struct timeval tval = {5, 0};
-
-    //     //调用select等待套接字变为可读或可写，如果select返回0，那么表示超时
-    //     FD_ZERO(&rset);
-    //     FD_SET(Client, &rset);
-    //     wset = rset;
-
-    //     if ((n = select(Client + 1, &rset, &wset, NULL, &tval)) == 0)
-    //         RunTimeLog("LS Error: 0x02") && CloseChaosCore1("Socket Connect TimeOut!") && CloseChaosCore2();
-
-    //     //检查可读或可写条件，调用getsockopt取得套接字的待处理错误，如果建立成功，该值将为0
-    //     if (FD_ISSET(Client, &rset) || FD_ISSET(Client, &wset))
-    //     {
-    //         len = sizeof(error);
-    //         if (getsockopt(Client, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
-    //             RunTimeLog("LS Error: 0x03") && CloseChaosCore1("Solaris pending error!") && CloseChaosCore2();
-    //     }
-    //     else
-    //         RunTimeLog("LS Error: 0x04") && CloseChaosCore1("Socket Not Set!") && CloseChaosCore2();
-    // }
-
-    // //恢复套接字的文件状态标志
-    // fcntl(Client, F_SETFL, flags);
-    // if (error)
-    //     RunTimeLog("LS Error: 0x05-" + ToString(error)) &&
-    //         CloseChaosCore1("Errno: " + ToString(error)) && CloseChaosCore2();
+    if (connect(Client, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+        RunTimeLog("LS Error: 0x01") && CloseChaosCore1("Socket Connect Error!") && CloseChaosCore2();
 
     static struct timeval timeout = {15, 0};
     if (setsockopt(Client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(struct timeval)) != 0)
@@ -776,6 +744,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::SendJSON(const char *route, const Json::Value &send_
     int status = read_root[GET_SAFE_DATA(statusStr)].asInt();
     std::string error = read_root[GET_SAFE_DATA(errorStr)].asString();
     std::string Data = read_root[GET_SAFE_DATA(dataStr)].asString();
+    // std::string Data = writer.write(read_root[GET_SAFE_DATA(dataStr)]);
 
     // RunTimeLog("status:#" + std::to_string(status) + "#");
     // RunTimeLog("error:#" + error + "#");

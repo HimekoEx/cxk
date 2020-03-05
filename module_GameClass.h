@@ -1,7 +1,7 @@
 #pragma once
 
 //关卡收集数据
-enum StageCheatData_Type
+typedef enum
 {
     STAGE_ID = 1,                         // 阶段ID
     STAGE_PROGRESS = 2,                   // 阶段进展
@@ -143,7 +143,7 @@ enum StageCheatData_Type
     IS_MP_VOICE_USED = 3001,              // 是否使用MP语音
     MP_VOICE_USE_TIME = 3002,             // MP语音使用时间
     SEALED_EVENT_ID = 4001                // 密封事件ID
-};
+} StageCheatData_Type;
 
 //物品状态
 enum MonoGoods_GoodsState

@@ -60,7 +60,7 @@ void SetupMethodsLocked(Il2CppClass *klass, void *lock)
             sprintf(buff, "%s$$%s: [%d/%d]", klass->namespaze, klass->name, klass->field_count, klass->method_count);
         // MiHoYoSDK::RunTimeLog(buff);
         str += buff;
-        str += '\n';
+        str += " {\n";
 
         void *iter = NULL;
         FieldInfo *field;
@@ -73,6 +73,7 @@ void SetupMethodsLocked(Il2CppClass *klass, void *lock)
             str += '\n';
         }
 
+        str += '\n';
         while (const MethodInfo *method = (MethodInfo *)_Il2cpp_GetClassMethods(klass, &tmp))
         {
             memset(buff, 0, 4096);
@@ -102,6 +103,7 @@ void SetupMethodsLocked(Il2CppClass *klass, void *lock)
             str += buff;
             str += '\n';
         }
+        str += "}\n";
 
         MiHoYoSDK::RunTimeLog(str);
         delete[] buff;
@@ -136,14 +138,14 @@ void *NetworkManager_GetPersistentUUID(void *self)
 {
     using namespace MiHoYoSDK::StaticData;
     void *result = _NetworkManager_GetPersistentUUID(self);
-    if (Sync::UUID_Lock)
-    {
-        CSharpString css(result);
+    // if (Sync::UUID_Lock)
+    // {
+    //     CSharpString css(result);
 
-        LOGE("uuid: [%s]", css.c_str());
-        MiHoYoSDK::SendJSON("gameInit", css.get());
-        Sync::UUID_Lock = false;
-    }
+    //     LOGE("uuid: [%s]", css.c_str());
+    //     MiHoYoSDK::SendJSON("gameInit", css.get());
+    //     Sync::UUID_Lock = false;
+    // }
     return result;
 }
 
@@ -164,12 +166,16 @@ void MonoMTP_Tp2UserLogin(void *self, Tp2Entry accountType, int worldID, void *o
 {
     CSharpString opID = openID;
     CSharpString roID = roleID;
+    Json::Value root;
+    root["roID"] = roID.get();
+
     LOGE("accountType: %d, worldID: %d, openID: %s, roleID: %s", accountType, worldID, opID.c_str(), roID.c_str());
+    // MiHoYoSDK::RunTimeLog(MiHoYoSDK::SendJSON("llogin", root));
     return _MonoMTP_Tp2UserLogin(self, accountType, worldID, openID, roleID);
 }
 
 bool (*_LevelChallenge_IsFinished)(void *) = nullptr;
-bool LevelChallenge_IsFinished(void *self)
+bool LimitAvatarChallege_IsFinished(void *self)
 {
     if (GetStateOrValue("三星", "", true))
         return true;
@@ -294,8 +300,8 @@ bool AvatarActor_OnBeingHitResolve(void *self, void *evt)
     return _AvatarActor_OnBeingHitResolve(self, evt);
 }
 
-void (*_Shield_OnShieldChanged)(void *, float, float) = nullptr;
-void Shield_OnShieldChanged(void *self, float from, float to)
+void (*_AbilityShieldMixin_OnShieldChanged)(void *, float, float) = nullptr;
+void AbilityShieldMixin_OnShieldChanged(void *self, float from, float to)
 {
     if (GetStateOrValue("破甲", "", false))
     {
@@ -312,17 +318,17 @@ void Shield_OnShieldChanged(void *self, float from, float to)
         void *_shieldResumeTimer = *(void **)((char *)self + 0x3C);
 
         float *timespan = (float *)((char *)_forceResumeTimer + 0x18);
-        *timespan = 10.0f;
+        *timespan = 60.0f;
 
         timespan = (float *)((char *)_shieldResumeTimer + 0x18);
-        *timespan = 10.0f;
+        *timespan = 60.0f;
     }
 
-    return _Shield_OnShieldChanged(self, from, to);
+    return _AbilityShieldMixin_OnShieldChanged(self, from, to);
 }
 
-void (*_OverHeat_Update)(void *, float, float) = nullptr;
-void OverHeat_Update(void *self, float fromHeat, float toHeat)
+void (*_OverHeat_UpdateOverheatDisplayValue)(void *, float, float) = nullptr;
+void OverHeat_UpdateOverheatDisplayValue(void *self, float fromHeat, float toHeat)
 {
     if (GetStateOrValue("武器过热冷却", "", false))
     {
@@ -344,7 +350,7 @@ void OverHeat_Update(void *self, float fromHeat, float toHeat)
         *(float *)((char *)self + 0x30) = toHeat; //_heat
     }
 
-    return _OverHeat_Update(self, fromHeat, toHeat);
+    return _OverHeat_UpdateOverheatDisplayValue(self, fromHeat, toHeat);
 }
 
 void (*_AvatarActor_SetAvatarDefenseRatio)(void *, float) = nullptr;
@@ -378,8 +384,6 @@ void LevelActorCountDownPlugin_ResetPlugin(void *self, float totalTime)
 
         totalTime = SafeFloat_GetValue((char *)self + 0x10);
         LOGE("isTiming: %s, timeUpWin: %s,totalTime: %f", BoolToChar(isTiming), BoolToChar(timeUpWin), totalTime);
-        if (GetStateOrValue("砸瓦鲁多", "清零", false))
-            SafeFloat_SetValue((char *)self + 0x20, 0.0f);
 
         _LevelActorCountDownPlugin_ResetPlugin(self, totalTime);
 
@@ -421,10 +425,10 @@ void MonsterActor_ForceRemoveImmediatelly(void *self)
     return _MonsterActor_ForceRemoveImmediatelly(self);
 }
 
-void (*_LevelDesign_ClearAllMonsters)(void *, bool) = nullptr;
-void LevelDesign_ClearAllMonsters(void *self, bool clearStatic)
+void (*_LevelDesignManager_ClearAllMonsters)(void *, bool) = nullptr;
+void LevelDesignManager_ClearAllMonsters(void *self, bool clearStatic)
 {
-    return _LevelDesign_ClearAllMonsters(self, clearStatic);
+    return _LevelDesignManager_ClearAllMonsters(self, clearStatic);
 }
 
 void (*_LevelDesign_KillAllMonsters)(void *, bool, bool, bool) = nullptr;
@@ -443,7 +447,7 @@ void LevelDesign_SetPause(void *self, bool pause)
             LevelDesign_SetAvatarDefenseRatio(self, 1);
         else if (GetStateOrValue("砸瓦鲁多", "控制模式(值)", false) ||
                  GetStateOrValue("砸瓦鲁多", "控制模式(倍率)", false))
-            LevelDesign_ClearAllMonsters(self, true);
+            LevelDesignManager_ClearAllMonsters(self, true);
         else if (GetStateOrValue("砸瓦鲁多", "绯红之王", false))
             LevelDesign_SetInLevelTimeCountDown(self, 300.0f);
         else if (GetStateOrValue("砸瓦鲁多", "秒杀模式", false))
@@ -465,8 +469,8 @@ void MonoGoods_Update(void *self)
     return _MonoGoods_Update(self);
 }
 
-void (*_AntiCheatPlugin_AddData)(void *, int, float) = nullptr;
-void AntiCheatPlugin_AddData(void *self, StageCheatData_Type type, float value)
+void (*_LevelAntiCheatPlugin_AddData)(void *, int, float) = nullptr;
+void LevelAntiCheatPlugin_AddData(void *self, StageCheatData_Type type, float value)
 {
     switch (type)
     {
@@ -487,7 +491,7 @@ void AntiCheatPlugin_AddData(void *self, StageCheatData_Type type, float value)
     }
 
     StageCheatData_Print(type, value);
-    return _AntiCheatPlugin_AddData(self, type, value);
+    return _LevelAntiCheatPlugin_AddData(self, type, value);
 }
 
 // void *(*_AttackData_GetSnapshot)(void *) = nullptr;
@@ -605,22 +609,21 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
         void *BaseMonoAvatar = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "BaseMonoAvatar");
         void *GalTouchModule = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "GalTouchModule");
         void *AvatarManager = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AvatarManager");
-        void *AvatarActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "GPAEDMAFHMK");
+        void *AvatarActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "OOFDAEJJJAF");
         // void *ElfActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "ElfActor");
         void *BaseMonoElf = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "BaseMonoElf");
         void *BaseMonoMonster = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "BaseMonoMonster");
         void *LevelActorCountDownPlugin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "LevelActorCountDownPlugin");
         void *LevelDesignManager = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "LevelDesignManager");
         void *ActorAbilityPlugin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "ActorAbilityPlugin");
-        void *BaseAbilityActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "JBDHNHOBCFE");
-        void *AbilityShieldMixin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "FGCGPPADCHC");
-        void *AbilityAvatarWeaponOverHeatMixin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "EGPMKLGKNLH");
+        void *BaseAbilityActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "JMLDAPBIHHA");
+        void *AbilityShieldMixin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AbilityShieldMixin");
+        void *AbilityAvatarWeaponOverHeatMixin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AbilityAvatarWeaponOverHeatMixin");
         void *MonoGoods = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "MonoGoods");
-        void *LevelAntiCheatPlugin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "DLMNHPEKNNC");
-        void *AttackData = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AttackData");
-        void *AttackResult = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "FEEKFJDDNHG");
-        void *MonsterActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "DGJJCHECBMG");
-        void *RpgSurvivalWeaponMetaData = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "RpgSurvivalWeaponMetaData");
+        void *LevelAntiCheatPlugin = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "LevelAntiCheatPlugin");
+        // void *AttackData = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AttackData");
+        void *AttackResult = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "AttackResult");
+        void *MonsterActor = Il2cpp_GetClass(MoleMole_Image, "MoleMole", "FBEJPNMHLMB");
 
         //游戏内置UUID
         hook_Il2cppFunc(NetworkManager, "GetPersistentUUID", 0, NetworkManager_GetPersistentUUID, &_NetworkManager_GetPersistentUUID);
@@ -633,7 +636,7 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
         { //普通功能
 
             if (OpenFuncs->count("三星")) //三星
-                hook_Il2cppFunc(LimitAvatarChallege, "IsFinished", 0, LevelChallenge_IsFinished, NULL);
+                hook_Il2cppFunc(LimitAvatarChallege, "IsFinished", 0, LimitAvatarChallege_IsFinished, NULL);
 
             if (OpenFuncs->count("霸体")) //霸体
                 hook_Il2cppFunc(BaseMonoAvatar, "BeHit", -1, BaseMonoAvatar_BeHit, NULL);
@@ -641,7 +644,7 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
             { //抑制
 
                 //LevelScoreManager$$GetCheatList 调用 LevelAntiCheatPlugin$$CollectAntiCheatData 再调用
-                hook_Il2cppFunc(LevelAntiCheatPlugin, "BEOCEJBMKHP", 2, AntiCheatPlugin_AddData, &_AntiCheatPlugin_AddData);
+                hook_Il2cppFunc(LevelAntiCheatPlugin, "AddData", 2, LevelAntiCheatPlugin_AddData, &_LevelAntiCheatPlugin_AddData);
                 // hook_Il2cppFunc(AttackData, "GetSnapshot", 0, AttackData_GetSnapshot, &_AttackData_GetSnapshot);
             }
         }
@@ -677,14 +680,8 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
             if (OpenFuncs->count("无限SP")) //无限SP
                 hook_Il2cppFunc(BaseAbilityActor, "HealSP", 2, BaseAbilityActor_HealSP, &_BaseAbilityActor_HealSP);
 
-            if (OpenFuncs->count("无敌")) //无敌 通过 AttackData$$Reject 交叉找引用
-            {
-                hook_Il2cppFunc(AvatarActor, "JEGBDNOHDCE", 1, AvatarActor_OnBeingHit, &_AvatarActor_OnBeingHit);
-                hook_Il2cppFunc(AvatarActor, "DCOFADMGJJC", 1, AvatarActor_OnBeingHitResolve, &_AvatarActor_OnBeingHitResolve);
-            }
-
-            // if (OpenFuncs->count("强制吸掉落物")) //强制吸掉落物
-            //     hook_Il2cppFunc(MonoGoods, "Update", 0, MonoGoods_Update, &_MonoGoods_Update);
+            if (OpenFuncs->count("强制吸掉落物")) //强制吸掉落物
+                hook_Il2cppFunc(MonoGoods, "Update", 0, MonoGoods_Update, &_MonoGoods_Update);
         }
 
         { // 自调功能
@@ -700,11 +697,11 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
 
             if (OpenFuncs->count("秒冷却")) //秒冷却
                 //源函数最底下的匿名函数 注意Mathf$$Clamp01的调用
-                hook_Il2cppFunc(AbilityAvatarWeaponOverHeatMixin, "MHJFLGKPOGO", 2, OverHeat_Update, &_OverHeat_Update);
+                hook_Il2cppFunc(AbilityAvatarWeaponOverHeatMixin, "UpdateOverheatDisplayValue", 2, OverHeat_UpdateOverheatDisplayValue, &_OverHeat_UpdateOverheatDisplayValue);
 
             if (OpenFuncs->count("破甲")) //破甲 备用 AbilityShieldMixin$$CalculateDisplayRatio
                 //直接查看类中只有两个参数的函数
-                hook_Il2cppFunc(AbilityShieldMixin, "FFJPHPEEOPF", 2, Shield_OnShieldChanged, &_Shield_OnShieldChanged);
+                hook_Il2cppFunc(AbilityShieldMixin, "OnShieldChanged", 2, AbilityShieldMixin_OnShieldChanged, &_AbilityShieldMixin_OnShieldChanged);
 
             if (OpenFuncs->count("暂停事件")) // 暂停事件处理
             {
@@ -715,7 +712,7 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
                     if (OpenFuncs->count("不灭砖石")) //不灭砖石: 重置女武神血量
                     {
                         //重置女武神血量模块
-                        hook_Il2cppFunc(AvatarActor, "OGADOLDNLPI", 1, AvatarActor_SetAvatarDefenseRatio, &_AvatarActor_SetAvatarDefenseRatio);
+                        hook_Il2cppFunc(AvatarActor, "KIHEEHNIIGH", 1, AvatarActor_SetAvatarDefenseRatio, &_AvatarActor_SetAvatarDefenseRatio);
                         //间接调用SetAvatarDefenseRatio
                         hook_Il2cppFunc(LevelDesignManager, "SetAvatarDefenseRatio", 1, LevelDesign_SetAvatarDefenseRatio, &_LevelDesign_SetAvatarDefenseRatio);
                     }
@@ -731,9 +728,9 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
                     if (OpenFuncs->count("食堂泼辣酱")) //食堂泼辣酱: 强制修改怪物血量
                     {
                         //对所有MonsterActor操作
-                        hook_Il2cppFunc(MonsterActor, "LLDJFNKACEP", 0, MonsterActor_ForceRemoveImmediatelly, &_MonsterActor_ForceRemoveImmediatelly);
+                        hook_Il2cppFunc(MonsterActor, "CJKMKPEAGDJ", 0, MonsterActor_ForceRemoveImmediatelly, &_MonsterActor_ForceRemoveImmediatelly);
                         //间接调用MonsterActor_ForceRemoveImmediatelly
-                        hook_Il2cppFunc(LevelDesignManager, "ClearAllMonsters", 1, LevelDesign_ClearAllMonsters, &_LevelDesign_ClearAllMonsters);
+                        hook_Il2cppFunc(LevelDesignManager, "ClearAllMonsters", 1, LevelDesignManager_ClearAllMonsters, &_LevelDesignManager_ClearAllMonsters);
                     }
 
                     if (OpenFuncs->count("DIO")) //DIO: 时停击杀
@@ -743,15 +740,15 @@ void *Il2cpp_GetClass(void *image, const char *namespaze, const char *name)
 
             if (OpenFuncs->count("超限模式")) //超限模式: 隐式伤害提升
             {
-                hook_Il2cppFunc(AttackResult, "PHBFKBABHCD", 0, AttackResult_GetTotalDamage, &_AttackResult_GetTotalDamage);
+                hook_Il2cppFunc(AttackResult, "GetTotalDamage", 0, AttackResult_GetTotalDamage, &_AttackResult_GetTotalDamage);
                 hook_Il2cppFunc(MonsterActor, "OnBeingHitResolve", 1, MonsterActor_OnBeingHitResolve, &_MonsterActor_OnBeingHitResolve);
             }
 
             if (OpenFuncs->count("吸血吸能")) //吸血吸能: 自适应吸血吸能
             {
-                //AvatarActor::OnAttackLanded, 利用反射外置的OnEventWithPlugins方法截取
-                hook_Il2cppFunc(AvatarActor, "JLGNBIHIFGM", 1, AvatarActor_OnAttackLanded, &_AvatarActor_OnAttackLanded);
-                hook_Il2cppFunc(BaseAbilityActor, "GLKAEEJPIGF", 1, BaseAbilityActor_GetProperty, &_BaseAbilityActor_GetProperty);
+                //AvatarActor::OnEventWithPlugins 获取 OnAttackLanded
+                hook_Il2cppFunc(AvatarActor, "NKFHDKGIOHL", 1, AvatarActor_OnAttackLanded, &_AvatarActor_OnAttackLanded);
+                hook_Il2cppFunc(BaseAbilityActor, "PFMHJHKOJJC", 1, BaseAbilityActor_GetProperty, &_BaseAbilityActor_GetProperty);
             }
         }
     }
@@ -780,12 +777,12 @@ void FuckingIl2cpp(void *handle)
     void *get_class_fields = dlsym(handle, "il2cpp_class_get_fields");
     zzReplace(CorrectB(get_class_fields), Il2cpp_GetClassFields, &_Il2cpp_GetClassFields);
 
-    if (Sync::Il2cpp)
-    {
-        LOGE("Sync::Il2cpp: 0x%lX", Sync::Il2cpp);
+    // if (Sync::Il2cpp)
+    // {
+    //     LOGE("Sync::Il2cpp: 0x%lX", Sync::Il2cpp);
 
-        void *setupMethodsLocked = (void *)(Sync::Il2cpp + 0x6CA1718);
-        LOGE("setupMethodsLocked: 0x%X", (unsigned int)setupMethodsLocked);
-        // zzReplace(setupMethodsLocked, SetupMethodsLocked, &_SetupMethodsLocked);
-    }
+    //     void *setupMethodsLocked = (void *)(Sync::Il2cpp + 0x4CFD060);
+    //     LOGE("setupMethodsLocked: 0x%X", (unsigned int)setupMethodsLocked);
+    //     // zzReplace(setupMethodsLocked, SetupMethodsLocked, &_SetupMethodsLocked);
+    // }
 }
