@@ -1,3 +1,4 @@
+#include <sys/system_properties.h>
 #include <include/openssl/md5.h>
 #include <include/openssl/rsa.h>
 #include <include/openssl/aes.h>
@@ -470,16 +471,22 @@ void MiHoYoSDK::DecryptAscii(int data[], const short key)
 }
 
 //验证Ascii
-void MiHoYoSDK::CheakAscii(const int data[], const char src[], const short key)
+void MiHoYoSDK::CheakAscii(int data[], char src[], const short key)
 {
     for (int i = 0; i < 64; ++i)
         if (src[i] != (char)((data[i] ^ key) >> 2))
             CloseChaosCore1("CA Error") && CloseChaosCore2();
+        else
+            data[i] = src[i] = 0xff;
 }
 
 //获取MD5
-MiHoYoSDK::Bytes MiHoYoSDK::MD5(const Bytes &src)
+MiHoYoSDK::Bytes MiHoYoSDK::MD5(const Bytes &src, bool notNull)
 {
+    if (notNull)
+        if (src.length() <= 0)
+            CloseChaosCore1("MD5 Error") && CloseChaosCore2();
+
     char hex[33] = "";
     uchar digest[MD5_DIGEST_LENGTH];
 
@@ -592,7 +599,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::Base64Encode(const Bytes &src)
 MiHoYoSDK::Bytes MiHoYoSDK::Base64Decode(const Bytes &src);
 
 //连接服务器
-void MiHoYoSDK::LinkServer(void (*initCallback)(const Bytes &src))
+void MiHoYoSDK::LinkServer(const uint channelID, void (*initCallback)(const Bytes &src))
 {
     MiHoYoSDK::RunTimeInit();
 
@@ -603,9 +610,9 @@ void MiHoYoSDK::LinkServer(void (*initCallback)(const Bytes &src))
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(7557);                        //端口
     server_addr.sin_addr.s_addr = inet_addr(ip.get().c_str()); //远程服务器IP
-    // server_addr.sin_addr.s_addr = inet_addr("192.168.0.2");    //本地调试IP
-    server_addr.sin_port = htons(7557); //端口
+    server_addr.sin_addr.s_addr = inet_addr("192.168.0.2");    //本地调试IP
 
     if ((Client = socket(PF_INET, SOCK_STREAM, 0)) < 0)
         RunTimeLog("LS Error: 0x00") && CloseChaosCore1("Socket Create Error!") && CloseChaosCore2();
@@ -621,6 +628,8 @@ void MiHoYoSDK::LinkServer(void (*initCallback)(const Bytes &src))
         RunTimeLog("LS Error: 0x07-" + ToString(errno)) && CloseChaosCore1("Setsockopt Error!") && CloseChaosCore2();
 
     Json::Value root;
+    root[GET_SAFE_DATA(StaticData::versionStr)] = GET_SAFE_DATA(StaticData::version);
+    root[GET_SAFE_DATA(StaticData::channelStr)] = channelID;
     root[GET_SAFE_DATA(StaticData::uuidStr)] = GetUUID().c_str();
     root[GET_SAFE_DATA(StaticData::uifStr)] = ReadFile(GET_SAFE_DATA(StaticData::uifPath));
 
@@ -646,7 +655,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::SendMsg(const Bytes &msg)
     snprintf(lenBuf, 6, "%05u", msg_len);
     Bytes send_msg(lenBuf, 5);
     send_msg.append(msg);
-    // LOGE("msg_len: %s", lenBuf);
+
     if (send(Client, send_msg.c_str(), send_msg.length(), 0) <= 0)
         RunTimeLog("SM Error: 0x01-" + ToString(errno)) && CloseChaosCore1("Errno: " + ToString(errno)) && CloseChaosCore2();
 
@@ -678,7 +687,6 @@ MiHoYoSDK::Bytes MiHoYoSDK::SendMsg(const Bytes &msg)
             break;
     }
 
-    // LOGE("rec_len: %d", rec_len);
     SyncLock = false;
     return read_data;
 }
@@ -743,8 +751,8 @@ MiHoYoSDK::Bytes MiHoYoSDK::SendJSON(const char *route, const Json::Value &send_
 
     int status = read_root[GET_SAFE_DATA(statusStr)].asInt();
     std::string error = read_root[GET_SAFE_DATA(errorStr)].asString();
-    std::string Data = read_root[GET_SAFE_DATA(dataStr)].asString();
-    // std::string Data = writer.write(read_root[GET_SAFE_DATA(dataStr)]);
+    // std::string Data = read_root[GET_SAFE_DATA(dataStr)].asString();
+    std::string Data = writer.write(read_root[GET_SAFE_DATA(dataStr)]);
 
     // RunTimeLog("status:#" + std::to_string(status) + "#");
     // RunTimeLog("error:#" + error + "#");

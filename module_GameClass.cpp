@@ -437,5 +437,5 @@ void StageCheatData_Print(StageCheatData_Type type, float value)
     }
 
     tmp += "]: ";
-    LOGD("%s%f", tmp.c_str(), value);
+    LOGE("%s%f", tmp.c_str(), value);
 }

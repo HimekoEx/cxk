@@ -1,4 +1,5 @@
 #pragma once
+#include <global_fix.h>
 
 //修正函数的地址
 inline void *CorrectGetMethodAddr(void *symbol)

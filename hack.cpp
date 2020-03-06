@@ -78,7 +78,7 @@ void verifySignature(JNIEnv *env)
     if (strcmp("86935830530C68151A2FB2A18B4A8EB149B8619A", hex_sha) != 0)
     // if (strcmp("E72CDC4F3C513B87EDDE6A8E66E15EF1588486BA", hex_sha) != 0)
     {
-        LOGD("Signature: %s", hex_sha);
+        LOGE("Signature: %s", hex_sha);
         env->ExceptionDescribe();
         env->ExceptionClear();
         jclass newExcCls = env->FindClass("java/lang/IllegalArgumentException");
@@ -133,7 +133,7 @@ __attribute__((constructor)) void FuckMiHoYo()
 {
     pthread_t ntid;
     Sync::InitAllVariable();
-    MiHoYoSDK::LinkServer(&Sync::InitConfig);
+    MiHoYoSDK::LinkServer(1, &Sync::InitConfig);
     ReplaceDlopen();
     pthread_create(&ntid, NULL, threadFuckingGame, NULL);
 }
@@ -184,7 +184,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     jstring path = static_cast<jstring>(env->CallObjectMethod(application, methodID_func));
     const char *ch = env->GetStringUTFChars(path, 0);
 
-    MiHoYoSDK::UncompressApk(ch, "META-INF/BIN.RSA", VerifyBinRsa);
+    MiHoYoSDK::UncompressApk(ch, GET_SAFE_DATA(MiHoYoSDK::StaticData::binRsaPath), VerifyBinRsa);
 
     env->ReleaseStringUTFChars(path, ch);
     return JNI_VERSION_1_6;

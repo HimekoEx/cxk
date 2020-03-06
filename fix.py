@@ -53,7 +53,7 @@ def confuse(path_filename):
     file_content = ''
     try:
         file_in = open(path_filename, encoding='utf-8')
-        backup(file_in)
+        # backup(file_in)
 
         while True:
             line = file_in.readline()

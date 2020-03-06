@@ -1,4 +1,5 @@
 #pragma once
+#include <global_fix.h>
 
 //关卡收集数据
 typedef enum
@@ -146,16 +147,16 @@ typedef enum
 } StageCheatData_Type;
 
 //物品状态
-enum MonoGoods_GoodsState
+typedef enum
 {
     Appear = 0,  // 出现
     Idle = 1,    // 闲置
     Attract = 2, // 吸引
     Consumed = 3 // 消耗
-};
+} MonoGoods_GoodsState;
 
 //TP登录类型
-enum Tp2Entry
+typedef enum
 {
     ENTRY_ID_QZONE = 1,
     ENTRY_ID_MM = 2,
@@ -164,19 +165,7 @@ enum Tp2Entry
     ENTRY_ID_LINE = 5,
     ENTRY_ID_WHATSAPP = 6,
     ENTRY_ID_OTHERS = 99
-};
-
-// typedef void (*Il2CppMethodPointer)();
-// typedef void* (*InvokerMethod)(Il2CppMethodPointer, const MethodInfo*, void*, void**);
-// struct MethodInfo
-// {
-//     Il2CppMethodPointer methodPointer;
-//     InvokerMethod invoker_method;
-//     const char* name;
-//     void *declaring_type;
-//     const void *return_type;
-//     const void* parameters;
-// }
+} Tp2Entry;
 
 //打印StageCheatData数据
 void StageCheatData_Print(StageCheatData_Type type, float value);

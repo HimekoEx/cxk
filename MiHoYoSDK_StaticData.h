@@ -1,4 +1,5 @@
 #pragma once
+#include <global_fix.h>
 
 #define GET_SAFE_CORT(name) name, sizeof(name)
 #define GET_SAFE_CHAR(name) (MiHoYoSDK::SafeChars(name, sizeof(name)).get().c_str())
@@ -87,6 +88,20 @@ extern int dlopenV19Str[21];
 extern int dlopenStr[14];
 
 extern int binRsaKey[64];
+extern int binRsaKey2[64];
+
+extern int version[6];
+extern int channelStr[7];
+
+extern int chaosLibPath[20];
+extern int cyblLibPath[19];
+extern int apkPath[9];
+
+extern int chaosStr[5];
+extern int cyblStr[4];
+extern int apkStr[3];
+
+extern int binRsaPath[16];
 
 } // namespace StaticData
 } // namespace MiHoYoSDK

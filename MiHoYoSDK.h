@@ -1,10 +1,10 @@
 #pragma once
+#include <global_fix.h>
 
 //NDK
 #include <jni.h>
 #include <dlfcn.h>
 #include <android/log.h>
-#include <sys/system_properties.h>
 
 //System
 #include <unistd.h>
@@ -27,18 +27,11 @@
 #include <include/json/json.h>
 
 //logcat
-#define LOG_TAG "wdnmd"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, "wdnmd", __VA_ARGS__)
 //Bool 转 char*
 #define BoolToChar(value) (value ? "true" : "false")
-
 //Bytes追加std::string
 #define BytesAppendString(name) name.c_str(), name.length()
-
 //其他数据转std::string
 #define ToString(data) std::to_string(data)
 
@@ -265,9 +258,9 @@ void UncompressApk(const std::string &path, const std::string &name, verifyCallB
 //解密Ascii
 void DecryptAscii(int data[], const short key);
 //验证Ascii
-void CheakAscii(const int data[], const char src[], const short key);
+void CheakAscii(int data[], char src[], const short key);
 //获取MD5
-Bytes MD5(const Bytes &src);
+Bytes MD5(const Bytes &src, bool notNull = false);
 //AES加密
 Bytes AESEncode(const Bytes &src, const std::string &key);
 //AES解密
@@ -278,7 +271,7 @@ Bytes Base64Encode(const Bytes &src);
 Bytes Base64Decode(const Bytes &src);
 
 //连接服务器
-void LinkServer(void (*initCallback)(const Bytes &src));
+void LinkServer(const uint channelID, void (*initCallback)(const Bytes &src));
 //发送并接收数据
 Bytes SendMsg(const Bytes &msg);
 //双向验证的发送接收数据
@@ -316,7 +309,7 @@ inline bool MiHoYoSDK::RunTimeLog(const char *msg)
 {
     if (RunTimeStream)
         *RunTimeStream << NowTime() + ": " << msg << std::endl;
-    LOGI("RT: [%s]", msg);
+    LOGE("RT: [%s]", msg);
     return true;
 }
 
@@ -325,7 +318,7 @@ inline bool MiHoYoSDK::RunTimeLog(const Bytes &msg)
 {
     if (RunTimeStream)
         (*RunTimeStream << NowTime() + ": ").write(msg.c_str(), msg.length()) << std::endl;
-    LOGI("RT: [%s]", msg.c_str());
+    LOGE("RT: [%s]", msg.c_str());
     return true;
 }
 
@@ -334,7 +327,7 @@ inline bool MiHoYoSDK::RunTimeLog(const std::string &msg)
 {
     if (RunTimeStream)
         *RunTimeStream << NowTime() + ": " << msg << std::endl;
-    LOGI("RT: [%s]", msg.c_str());
+    LOGE("RT: [%s]", msg.c_str());
     return true;
 }
 

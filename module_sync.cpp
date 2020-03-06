@@ -16,7 +16,7 @@ std::map<std::string, Sync::MainData> *Sync::Config = nullptr;
 void Sync::InitAddress(ulong il2cpp)
 {
     Sync::Il2cpp = il2cpp;
-    LOGI("il2cpp >> 0x%lX", il2cpp);
+    LOGE("il2cpp >> 0x%lX", il2cpp);
 
     //0-三星条件选择器 LevelChallengeHelperPlugin$$CreateChallengeById
     //1-可触摸隐私部位 BaseGalTouchSystem$$DoNormalReaction 原函数名 GetReaction
@@ -91,6 +91,34 @@ void Sync::SyncJsonConfig()
     // Debug_PrintJsonConfig();
 }
 
+//SHA256 验证签名
+static bool SHA_Check(const char *data, const uint size, int keys[])
+{
+    uchar hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    char hex[65] = "";
+
+    MiHoYoSDK::DecryptAscii(keys, 0xCD09);
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, data, size);
+    SHA256_Final(hash, &sha256);
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
+        snprintf(hex + (i * 2), 3, "%02x", hash[i]);
+    hex[64] = '\0';
+
+    MiHoYoSDK::DecryptAscii(keys, 0x7798);
+    MiHoYoSDK::CheakAscii(keys, hex, 0xF4FC);
+
+    return true;
+}
+
+//验证回调函数
+static bool VerifyBinRsa(const char *buffer, const uint size)
+{
+    return SHA_Check(buffer, size, MiHoYoSDK::StaticData::binRsaKey2);
+}
+
 // 通过服务器发送的配置进行初始化
 void Sync::InitConfig(const MiHoYoSDK::Bytes &config)
 {
@@ -116,21 +144,31 @@ void Sync::InitConfig(const MiHoYoSDK::Bytes &config)
         }
     }
 
-    // std::string package = ReadFileLine(GET_SAFE_DATA(cfgPath));
-    // RunTimeLog(package);
+    // 自校验
+    {
+        std::string package = ReadFileLine(GET_SAFE_DATA(cfgPath));
 
-    // std::string cybl_path = package + "/lib/arm/libCyBL.so";
-    // std::string chaos_path = package + "/lib/arm/libchaos.so";
+        std::string chaos_path = package + GET_SAFE_DATA(chaosLibPath);
+        std::string cybl_path = package + GET_SAFE_DATA(cyblLibPath);
+        std::string apk_path = package + GET_SAFE_DATA(apkPath);
 
-    // Bytes md5 = MD5(ReadFile(chaos_path));
-    // LOGE("chaos md5: %s", md5.c_str());
-    // if (md5 != "0b26cfeeb77783797863971807ddc291")
-    //     CloseChaosCore1("chaos md5 err");
+        Bytes chaosMD5 = MD5(ReadFile(chaos_path), true);
+        LOGE("chaos md5 : %s", chaosMD5.c_str());
+        if (chaosMD5 != root[GET_SAFE_DATA(chaosStr)].asCString())
+            CloseChaosCore1("chaos md5 err") && CloseChaosCore2();
 
-    // md5 = MD5(ReadFile(cybl_path));
-    // LOGE("cybl md5: %s", md5.c_str());
-    // if (md5 != "f516b6270c479afe1583072cad9a1707")
-    //     RunTimeLog("cybl md5 err");
+        Bytes cyblMD5 = MD5(ReadFile(cybl_path), true);
+        LOGE("cybl md5  : %s", cyblMD5.c_str());
+        if (cyblMD5 != root[GET_SAFE_DATA(cyblStr)].asCString())
+            CloseChaosCore1("cybl md5 err") && CloseChaosCore2();
+
+        Bytes apkMD5 = MD5(ReadFile(apk_path), true);
+        LOGE("apk  md5  : %s", apkMD5.c_str());
+        if (apkMD5 != root[GET_SAFE_DATA(apkStr)].asCString())
+            CloseChaosCore1("apk md5 err") && CloseChaosCore2();
+
+        MiHoYoSDK::UncompressApk(apk_path, GET_SAFE_DATA(binRsaPath), VerifyBinRsa);
+    }
 }
 
 //手动初始化所有全局变量

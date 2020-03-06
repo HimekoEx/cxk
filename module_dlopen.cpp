@@ -8,7 +8,7 @@ static bool hook_lock_tpsafe = false;
 static std::string LIB_PATH;
 
 //初始化lib路径
-static void initLibPath()
+void initLibPath()
 {
     std::string package = ReadFileLine(GET_SAFE_DATA(cfgPath));
     LIB_PATH += package;
@@ -16,7 +16,7 @@ static void initLibPath()
 }
 
 //so加载
-static bool onSoLoaded(const char *name, void *handle)
+bool onSoLoaded(const char *name, void *handle)
 {
     if (handle == NULL)
         return false;
@@ -95,5 +95,5 @@ void ReplaceDlopen()
     zzReplace(V19_addr, R_dlopen_V19, &_R_dlopen_V19);
     zzReplace(dlopen_addr, R_dlopen, &_R_dlopen);
 
-    LOGI("dlopen hook done. handle >> 0x%lX", (long)handle);
+    LOGE("dlopen hook done. handle >> 0x%lX", (long)handle);
 }

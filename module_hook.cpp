@@ -7,9 +7,9 @@
 using Sync::GetStateOrValue;
 using Sync::OpenFuncs;
 
-static void *MoleMole_Image = NULL;
-static void *MonoMTP_Class = NULL;
-static bool s7Lock = false;
+void *MoleMole_Image = NULL;
+void *MonoMTP_Class = NULL;
+bool s7Lock = false;
 
 std::set<std::string> classSet;
 //////////////////////////////////////////////////////////////////////////////////////
@@ -78,10 +78,10 @@ void SetupMethodsLocked(Il2CppClass *klass, void *lock)
         {
             memset(buff, 0, 4096);
             std::string paramStr;
-            // LOGD("klass->name: %s", klass->name);
-            // LOGD("method->name: %s", method->name);
-            // LOGD("method->parameters_count: %d", method->parameters_count);
-            // LOGD("method->parameters: %p", method->parameters);
+            // LOGE("klass->name: %s", klass->name);
+            // LOGE("method->name: %s", method->name);
+            // LOGE("method->parameters_count: %d", method->parameters_count);
+            // LOGE("method->parameters: %p", method->parameters);
             for (uint paramIndex = 0; paramIndex < method->parameters_count; ++paramIndex)
             {
                 if (paramIndex != 0)
@@ -124,7 +124,7 @@ void hook_Il2cppFunc(void *classImage, const char *funcName, int argsCount, t1 n
                 addr = (int32_t)CorrectB((char *)addr + 4);
 
             zzReplace(addr, newFunc, origFunc);
-            LOGD("HOOK SUCCESS >>> [%s] off: 0x%X", funcName, (int32_t)(addr - std::max(Sync::Il2cpp, 0ul)));
+            LOGE("HOOK SUCCESS >>> [%s] off: 0x%X", funcName, (int32_t)(addr - std::max(Sync::Il2cpp, 0ul)));
         }
         else
             LOGE("HOOK ERROR!! >>> [%s] func not find!!! <<<", funcName);
@@ -166,10 +166,9 @@ void MonoMTP_Tp2UserLogin(void *self, Tp2Entry accountType, int worldID, void *o
 {
     CSharpString opID = openID;
     CSharpString roID = roleID;
-    Json::Value root;
-    root["roID"] = roID.get();
-
     LOGE("accountType: %d, worldID: %d, openID: %s, roleID: %s", accountType, worldID, opID.c_str(), roID.c_str());
+    // Json::Value root;
+    // root["roID"] = roID.get();
     // MiHoYoSDK::RunTimeLog(MiHoYoSDK::SendJSON("llogin", root));
     return _MonoMTP_Tp2UserLogin(self, accountType, worldID, openID, roleID);
 }
@@ -533,12 +532,12 @@ bool MonsterActor_OnBeingHitResolve(void *self, void *evt)
                     newHp = 0;
 
                 SafeFloat_SetValue(PtrActor_HP(self), newHp);
-                LOGD("-------------");
-                LOGD("toDmg := %0.2f", totalDamage);
-                LOGD("orgHp := %0.2f", hp);
-                LOGD("newHp := %0.2f", newHp);
-                LOGD("doDmg := %0.2f", hp - newHp);
-                LOGD("-------------");
+                LOGE("-------------");
+                LOGE("toDmg := %0.2f", totalDamage);
+                LOGE("orgHp := %0.2f", hp);
+                LOGE("newHp := %0.2f", newHp);
+                LOGE("doDmg := %0.2f", hp - newHp);
+                LOGE("-------------");
             }
         }
     }
@@ -554,7 +553,7 @@ float BaseAbilityActor_GetProperty(void *self, void *propertyKey)
     if (s7Lock)
     {
         CSharpString css(propertyKey);
-        // LOGD("org: ==Property== [%s    ] : %0.3f", css.c_str(), result);
+        // LOGE("org: ==Property== [%s    ] : %0.3f", css.c_str(), result);
 
         if (GetStateOrValue("吸血吸能", "SP吸取", false) && css.get() == "Actor_SPRecoverRatio")
         {
@@ -565,7 +564,7 @@ float BaseAbilityActor_GetProperty(void *self, void *propertyKey)
                      SafeFloat_GetValue(PtrActor_MaxSP(self)) * GetStateOrValue("吸血吸能", "SP阀值(高)", 0.0f))
                 result = GetStateOrValue("吸血吸能", "SP(高)吸收率", 0.0f);
 
-            // LOGD("==Property== [%s    ] : %0.3f", css.c_str(), result);
+            // LOGE("==Property== [%s    ] : %0.3f", css.c_str(), result);
         }
         else if (GetStateOrValue("吸血吸能", "HP吸取", false) && css.get() == "Actor_AttackStealHPRatio")
         {
@@ -579,7 +578,7 @@ float BaseAbilityActor_GetProperty(void *self, void *propertyKey)
                      SafeFloat_GetValue(PtrActor_MaxHP(self)) * GetStateOrValue("吸血吸能", "HP阀值(高)", 0.0f))
                 result = GetStateOrValue("吸血吸能", "HP(高)吸收率", 0.0f);
 
-            // LOGD("==Property== [%s] : %0.3f", css.c_str(), result);
+            // LOGE("==Property== [%s] : %0.3f", css.c_str(), result);
         }
     }
 
