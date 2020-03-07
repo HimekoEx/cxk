@@ -612,7 +612,7 @@ void MiHoYoSDK::LinkServer(const uint channelID, void (*initCallback)(const Byte
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(7557);                        //端口
     server_addr.sin_addr.s_addr = inet_addr(ip.get().c_str()); //远程服务器IP
-    server_addr.sin_addr.s_addr = inet_addr("192.168.0.2");    //本地调试IP
+    // server_addr.sin_addr.s_addr = inet_addr("192.168.0.2");    //本地调试IP
 
     if ((Client = socket(PF_INET, SOCK_STREAM, 0)) < 0)
         RunTimeLog("LS Error: 0x00") && CloseChaosCore1("Socket Create Error!") && CloseChaosCore2();

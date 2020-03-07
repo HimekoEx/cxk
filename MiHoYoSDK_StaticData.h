@@ -101,7 +101,7 @@ extern int chaosStr[5];
 extern int cyblStr[4];
 extern int apkStr[3];
 
-extern int binRsaPath[16];
+extern int binRsaPath[17];
 
 } // namespace StaticData
 } // namespace MiHoYoSDK

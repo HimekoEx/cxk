@@ -98,17 +98,18 @@ static bool SHA_Check(const char *data, const uint size, int keys[])
     SHA256_CTX sha256;
     char hex[65] = "";
 
-    MiHoYoSDK::DecryptAscii(keys, 0xCD09);
+    MiHoYoSDK::DecryptAscii(keys, 0x3009);
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, size);
+    SHA256_Update(&sha256, data, strlen(data));
     SHA256_Final(hash, &sha256);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, "%02x", hash[i]);
     hex[64] = '\0';
+    LOGE("SHA_Check2: %s", hex);
 
-    MiHoYoSDK::DecryptAscii(keys, 0x7798);
-    MiHoYoSDK::CheakAscii(keys, hex, 0xF4FC);
+    MiHoYoSDK::DecryptAscii(keys, 0xB0E8);
+    MiHoYoSDK::CheakAscii(keys, hex, 0x212B);
 
     return true;
 }
@@ -154,18 +155,18 @@ void Sync::InitConfig(const MiHoYoSDK::Bytes &config)
 
         Bytes chaosMD5 = MD5(ReadFile(chaos_path), true);
         LOGE("chaos md5 : %s", chaosMD5.c_str());
-        if (chaosMD5 != root[GET_SAFE_DATA(chaosStr)].asCString())
-            CloseChaosCore1("chaos md5 err") && CloseChaosCore2();
+        // if (chaosMD5 != root[GET_SAFE_DATA(chaosStr)].asCString())
+        //     CloseChaosCore1("chaos md5 err") && CloseChaosCore2();
 
         Bytes cyblMD5 = MD5(ReadFile(cybl_path), true);
         LOGE("cybl md5  : %s", cyblMD5.c_str());
-        if (cyblMD5 != root[GET_SAFE_DATA(cyblStr)].asCString())
-            CloseChaosCore1("cybl md5 err") && CloseChaosCore2();
+        // if (cyblMD5 != root[GET_SAFE_DATA(cyblStr)].asCString())
+        //     CloseChaosCore1("cybl md5 err") && CloseChaosCore2();
 
         Bytes apkMD5 = MD5(ReadFile(apk_path), true);
         LOGE("apk  md5  : %s", apkMD5.c_str());
-        if (apkMD5 != root[GET_SAFE_DATA(apkStr)].asCString())
-            CloseChaosCore1("apk md5 err") && CloseChaosCore2();
+        // if (apkMD5 != root[GET_SAFE_DATA(apkStr)].asCString())
+        //     CloseChaosCore1("apk md5 err") && CloseChaosCore2();
 
         MiHoYoSDK::UncompressApk(apk_path, GET_SAFE_DATA(binRsaPath), VerifyBinRsa);
     }

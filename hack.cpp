@@ -145,17 +145,18 @@ bool SHA_Check(const char *data, const uint size, int keys[])
     SHA256_CTX sha256;
     char hex[65] = "";
 
-    MiHoYoSDK::DecryptAscii(keys, 0x665F);
+    MiHoYoSDK::DecryptAscii(keys, 0x16A8);
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, size);
+    SHA256_Update(&sha256, data, strlen(data));
     SHA256_Final(hash, &sha256);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, "%02x", hash[i]);
     hex[64] = '\0';
+    LOGE("SHA_Check1: %s", hex);
 
-    MiHoYoSDK::DecryptAscii(keys, 0xB347);
-    MiHoYoSDK::CheakAscii(keys, hex, 0xCB61);
+    MiHoYoSDK::DecryptAscii(keys, 0x2CF3);
+    MiHoYoSDK::CheakAscii(keys, hex, 0x4455);
 
     return true;
 }
