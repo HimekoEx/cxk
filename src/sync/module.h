@@ -9,9 +9,9 @@
 //Hookzz
 #include <include/hookzz/hookzz.h>
 
-#include "module_CString.h"
-#include "MiHoYoSDK.h"
-#include "MiHoYoSDK_StaticData.h"
+#include "src/hook/module_CString.h"
+#include "src/mihoyo_sdk/MiHoYoSDK.h"
+#include "src/mihoyo_sdk/static/MiHoYoSDK_StaticData.h"
 
 //同步
 namespace Sync

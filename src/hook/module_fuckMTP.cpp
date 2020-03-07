@@ -1,4 +1,4 @@
-#include "module.h"
+#include "src/sync/module.h"
 
 int (*_tersafe_sysopen)(int, const char *, int, int, int, int, int, int, int, int, int);
 int tersafe_sysopen(int a1, const char *a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11)

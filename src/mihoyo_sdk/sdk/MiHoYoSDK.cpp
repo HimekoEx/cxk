@@ -6,8 +6,8 @@
 #include <include/openssl/bio.h>
 #include <include/zip/zip.h>
 
-#include "MiHoYoSDK.h"
-#include "MiHoYoSDK_StaticData.h"
+#include "src/mihoyo_sdk/MiHoYoSDK.h"
+#include "src/mihoyo_sdk/static/MiHoYoSDK_StaticData.h"
 
 #define BufferSize 1024 * 4
 #define ReadDataSize 1552
@@ -431,8 +431,8 @@ bool MiHoYoSDK::CloseChaosCore1(std::string msg)
         LOGE("CCC! Error: %s", msg.c_str());
 
     JNIEnv *env = EnsureEnvCreated();
-    env->ExceptionDescribe();
     env->ExceptionClear();
+    env->FatalError("");
     return true;
 }
 

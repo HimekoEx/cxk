@@ -1,4 +1,4 @@
-#include "module.h"
+#include "src/sync/module.h"
 using namespace Sync;
 
 namespace

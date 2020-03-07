@@ -1,8 +1,8 @@
 #include <assert.h>
-#include "module.h"
+#include "src/sync/module.h"
 #include "module_hook.h"
 #include "module_GameClass.h"
-#include "MiHoYoSDK_StaticData.h"
+#include "src/mihoyo_sdk/static/MiHoYoSDK_StaticData.h"
 
 using Sync::GetStateOrValue;
 using Sync::OpenFuncs;

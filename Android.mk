@@ -40,15 +40,16 @@ include $(CLEAR_VARS)
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 LOCAL_MODULE    := libCyBL
 
-LOCAL_SRC_FILES :=  $(LOCAL_PATH)/hack.cpp \
-                    $(LOCAL_PATH)/module_patch.cpp \
-                    $(LOCAL_PATH)/module_dlopen.cpp \
-                    $(LOCAL_PATH)/module_fuckMTP.cpp \
-                    $(LOCAL_PATH)/module_hook.cpp \
-                    $(LOCAL_PATH)/module_sync.cpp \
-                    $(LOCAL_PATH)/module_GameClass.cpp \
-                    $(LOCAL_PATH)/MiHoYoSDK.cpp \
-                    $(LOCAL_PATH)/MiHoYoSDK_StaticData.cpp
+LOCAL_SRC_FILES :=  $(LOCAL_PATH)/src/hack.cpp \
+                    $(LOCAL_PATH)/src/verify/verify.cpp \
+                    $(LOCAL_PATH)/src/sync/module_sync.cpp \
+                    $(LOCAL_PATH)/src/hook/module_dlopen.cpp \
+                    $(LOCAL_PATH)/src/hook/module_fuckMTP.cpp \
+                    $(LOCAL_PATH)/src/hook/module_GameClass.cpp \
+                    $(LOCAL_PATH)/src/hook/module_hook.cpp \
+                    $(LOCAL_PATH)/src/hook/module_patch.cpp \
+                    $(LOCAL_PATH)/src/mihoyo_sdk/sdk/MiHoYoSDK.cpp \
+                    $(LOCAL_PATH)/src/mihoyo_sdk/static/MiHoYoSDK_StaticData.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 

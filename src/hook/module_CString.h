@@ -1,5 +1,5 @@
 #pragma once
-#include "MiHoYoSDK.h"
+#include "src/mihoyo_sdk/MiHoYoSDK.h"
 
 //il2cpp原生C#字符串获取
 extern void *CString_New(const char *str);

@@ -1,4 +1,4 @@
-#include "module.h"
+#include "src/sync/module.h"
 #include "module_GameClass.h"
 
 //打印StageCheatData数据
