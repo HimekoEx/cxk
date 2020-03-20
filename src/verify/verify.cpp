@@ -1,9 +1,15 @@
+#include <include/openssl/sha.h>
 #include "verify.h"
+using namespace MiHoYoSDK;
+using namespace MiHoYoSDK::StaticData;
 
-const char HexCode[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+const char Verify::HexCode[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+uint Verify::LocalVFC = 0;
+uint Verify::RemoteVFC = 0;
 
 // 使用JavaAPI进行签名验证
-bool JniVerifySignature(JNIEnv *env)
+bool Verify::JniVerifySignature(JNIEnv *env)
 {
     //获取context类型和对象
     jclass context_class = env->FindClass("android/content/Context");
@@ -91,9 +97,152 @@ bool JniVerifySignature(JNIEnv *env)
 
     LOGE("ApiSign: %s", hex_sha);
     if (strcmp("86935830530C68151A2FB2A18B4A8EB149B8619A", hex_sha) != 0)
-        return MiHoYoSDK::RunTimeLog("Sign Verify Fail") && MiHoYoSDK::CloseChaosCore1("ApiSign Fail") && MiHoYoSDK::CloseChaosCore2();
+        return CCC("ApiSign Error!");
 
     env->DeleteLocalRef(sha1_byte);
     delete[] hex_sha;
     return false;
+}
+
+// 外部验证CERT.RSA
+bool Verify::VerifyCertRsaExt(const char *data, const uint size)
+{
+    int *keys = StaticData::CERT_RSA_EXT_KEY;
+    uchar hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    char hex[65] = "";
+
+    DecryptAscii(keys, 0x16A8);
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, data, strlen(data));
+    SHA256_Final(hash, &sha256);
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
+        snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
+    hex[64] = '\0';
+    LOGE("CERT.RSA(%d)Ext: %s", strlen(data), hex);
+
+    DecryptAscii(keys, 0x2CF3);
+    return CheakAscii(keys, hex, 0x4455);
+}
+
+// 内部验证CERT.RSA
+bool Verify::VerifyCertRsaIns(const char *data, const uint size)
+{
+
+    int *keys = StaticData::CERT_RSA_INS_KEY;
+    uchar hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    char hex[65] = "";
+
+    DecryptAscii(keys, 0x3009);
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, data, strlen(data));
+    SHA256_Final(hash, &sha256);
+
+    for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
+        snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
+    hex[64] = '\0';
+    LOGE("CERT.RSA(%d)Ins: %s", strlen(data), hex);
+
+    DecryptAscii(keys, 0xB0E8);
+    return CheakAscii(keys, hex, 0x212B);
+}
+
+// 文件验证
+bool Verify::VerifyFile(const std::string &chaos, const std::string &cybl, const std::string &apk)
+{
+    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+
+    std::string chaos_path = package + GET_SAFE_DATA(PATH_LIBchaos);
+    std::string cybl_path = package + GET_SAFE_DATA(PATH_LIBcybl);
+    std::string apk_path = package + GET_SAFE_DATA(PATH_baseAPK);
+
+    Bytes chaosMD5 = MD5(FileRead(chaos_path), true);
+    LOGE("chaos md5 : %s", chaosMD5.c_str());
+#ifdef RELEASE
+    if (chaosMD5 != chaos)
+        return CCC("chaos MD5 Error!");
+#endif
+
+    Bytes cyblMD5 = MD5(FileRead(cybl_path), true);
+    LOGE("cybl md5  : %s", cyblMD5.c_str());
+#ifdef RELEASE
+    if (cyblMD5 != cybl)
+        return CCC("cybl MD5 Error!");
+#endif
+
+    Bytes apkMD5 = MD5(FileRead(apk_path), true);
+    LOGE("apk  md5  : %s", apkMD5.c_str());
+#ifdef RELEASE
+    if (apkMD5 != apk)
+        return CCC("apk MD5 Error!");
+#endif
+
+    return false;
+}
+
+// 获取Chaos的MD5
+MiHoYoSDK::Bytes Verify::GetChaosMD5()
+{
+    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string chaos_path = package + GET_SAFE_DATA(PATH_LIBchaos);
+    return MD5(FileRead(chaos_path), true);
+}
+
+// 获取CyBL的MD5
+MiHoYoSDK::Bytes Verify::GetCyBLMD5()
+{
+    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string cybl_path = package + GET_SAFE_DATA(PATH_LIBcybl);
+    return MD5(FileRead(cybl_path), true);
+}
+
+// 获取APK的MD5
+MiHoYoSDK::Bytes Verify::GetAPKMD5()
+{
+    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string apk_path = package + GET_SAFE_DATA(PATH_baseAPK);
+    return MD5(FileRead(apk_path), true);
+}
+
+// 通过解析json验证文件
+bool Verify::VerifyFileByJson(const MiHoYoSDK::Bytes &rawData)
+{
+    Json::Reader reader;
+    Json::Value root;
+
+    // 解析json
+    if (!reader.parse(rawData.get(), root))
+        return RT("VJ Error: 0x01") && CCC("Parse Error");
+
+    return VerifyFile(root[GET_SAFE_DATA(STR_chaos)].asString(),
+                      root[GET_SAFE_DATA(STR_cybl)].asString(),
+                      root[GET_SAFE_DATA(STR_apk)].asString());
+}
+
+// 验证文件验证次数是否真实
+void Verify::VerifyVFC()
+{
+    // Json::Reader reader;
+    // Json::Value sendRoot, readRoot;
+    // sendRoot["local"] = LocalVFC;
+    // sendRoot["remote"] = RemoteVFC;
+
+    int off = LocalVFC - RemoteVFC;
+    // LOGE("LocalVFC: %u, RemoteVFC: %u", LocalVFC, RemoteVFC);
+
+    if (off > 3 || off < -3)
+        RT("VVFC Error: 0x01") && CCC("VVFC Error");
+
+    // Bytes raw = SendJSON("verifyVFC", sendRoot);
+
+    // // 解析json
+    // if (!reader.parse(raw.get(), readRoot))
+    //     RT("VVFC Error: 0x02") && CCC("Parse Error");
+
+    // off = readRoot["vfc"].asInt();
+    // off = LocalVFC - off;
+    // if (off > 5 || off < -5)
+    //     RT("VVFC Error: 0x01") && CCC("VVFC Error");
 }

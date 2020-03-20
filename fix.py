@@ -79,4 +79,4 @@ def confuse(path_filename):
 
 
 if __name__ == "__main__":
-    confuse(r"""C:\Users\Himeko\Desktop\dev-s\jni\include\global_fix.h""")
+    confuse(r"""C:\Users\Himeko\Desktop\dev-s\jni\include\fix.h""")

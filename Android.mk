@@ -42,19 +42,39 @@ LOCAL_MODULE    := libCyBL
 
 LOCAL_SRC_FILES :=  $(LOCAL_PATH)/src/hack.cpp \
                     $(LOCAL_PATH)/src/verify/verify.cpp \
-                    $(LOCAL_PATH)/src/sync/module_sync.cpp \
-                    $(LOCAL_PATH)/src/hook/module_dlopen.cpp \
-                    $(LOCAL_PATH)/src/hook/module_fuckMTP.cpp \
-                    $(LOCAL_PATH)/src/hook/module_GameClass.cpp \
-                    $(LOCAL_PATH)/src/hook/module_hook.cpp \
-                    $(LOCAL_PATH)/src/hook/module_patch.cpp \
-                    $(LOCAL_PATH)/src/mihoyo_sdk/sdk/MiHoYoSDK.cpp \
-                    $(LOCAL_PATH)/src/mihoyo_sdk/static/MiHoYoSDK_StaticData.cpp
+                    $(LOCAL_PATH)/src/sync/sync.cpp \
+                    $(LOCAL_PATH)/src/hook/dlopen/dlopen.cpp \
+                    $(LOCAL_PATH)/src/hook/loaded/il2cpp.cpp \
+                    $(LOCAL_PATH)/src/hook/loaded/tersafe2.cpp \
+                    $(LOCAL_PATH)/src/hook/logic/ClassLoad.cpp \
+                    $(LOCAL_PATH)/src/hook/logic/Functions.cpp \
+                    $(LOCAL_PATH)/src/hook/patch/il2cpp.cpp \
+                    $(LOCAL_PATH)/src/hook/utils/EnumParse.cpp \
+                    $(LOCAL_PATH)/src/sdk/crypto/AESCrypto.cpp \
+                    $(LOCAL_PATH)/src/sdk/crypto/Hash.cpp \
+                    $(LOCAL_PATH)/src/sdk/crypto/RSACrypto.cpp \
+                    $(LOCAL_PATH)/src/sdk/net/network.cpp \
+                    $(LOCAL_PATH)/src/sdk/utils/AntiDebug.cpp \
+                    $(LOCAL_PATH)/src/sdk/utils/str.cpp \
+                    $(LOCAL_PATH)/src/sdk/utils/file.cpp \
+                    $(LOCAL_PATH)/src/sdk/utils/tools.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/config/config.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/config/keys.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/config/path.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/hook/dlopen/dlopen.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/hook/loaded/il2cpp.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/hook/logic/Functions.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/sdk/crypto/Hash.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/sdk/net/network.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/sdk/utils/AntiDebug.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/sdk/utils/tools.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/sync/sync.cpp \
+                    $(LOCAL_PATH)/src/sdk/static/verify/verify.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
-# LOCAL_CFLAGS := -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
-LOCAL_CFLAGS += -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
+LOCAL_CFLAGS := -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
+# LOCAL_CFLAGS += -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
 LOCAL_LDLIBS := -lz -llog
 LOCAL_STATIC_LIBRARIES += hookzz jsoncpp openssl-crypto openssl-ssl zip
 include $(BUILD_SHARED_LIBRARY)
