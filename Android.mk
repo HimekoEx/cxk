@@ -73,8 +73,8 @@ LOCAL_SRC_FILES :=  $(LOCAL_PATH)/src/hack.cpp \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
-LOCAL_CFLAGS := -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
-# LOCAL_CFLAGS += -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
+# LOCAL_CFLAGS := -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
+LOCAL_CFLAGS += -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
 LOCAL_LDLIBS := -lz -llog
 LOCAL_STATIC_LIBRARIES += hookzz jsoncpp openssl-crypto openssl-ssl zip
 include $(BUILD_SHARED_LIBRARY)

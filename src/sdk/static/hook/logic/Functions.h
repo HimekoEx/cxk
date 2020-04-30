@@ -4,12 +4,12 @@
 //SDK
 namespace MiHoYoSDK
 {
-//静态数据
-namespace StaticData
-{
+    //静态数据
+    namespace StaticData
+    {
 
-extern int STR_guid[4];
-extern int STR_gameLogin[9];
+        extern int STR_guid[4];
+        extern int STR_gameLogin[9];
 
-}
-}
+    } // namespace StaticData
+} // namespace MiHoYoSDK

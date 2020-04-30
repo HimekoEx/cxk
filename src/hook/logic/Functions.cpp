@@ -27,7 +27,7 @@ Il2CppString *Logic::NetworkManager_GetPersistentUUID(Il2CppObject *self)
 
         Bytes raw = SendJSON(GET_SAFE_CHAR(STR_gameLogin), root);
         if (Verify::VerifyFileByJson(raw))
-            CCC("VerifyFileByJson Error");
+            RT("VFB Error") && CCC("VerifyFileByJson Error");
     }
 
     return result;
@@ -81,7 +81,7 @@ void Logic::LevelAntiCheatPlugin_AddData(Il2CppObject *self, StageCheatData_Type
     case StageCheatData_Type::ATTACK_SP_GAIN_2:
     case StageCheatData_Type::ATTACK_SP_GAIN_3:
         if (GetStateOrValue("吸血吸能", "", false) && GetStateOrValue("吸血吸能", "SP吸取", false))
-            value *= GetStateOrValue("吸血吸能", "SP抑制率", 1.0f);
+            value *= GetStateOrValue("吸血吸能", "SP抑制率", 0.5f);
         break;
     default:
         break;
@@ -123,8 +123,7 @@ Il2CppObject *Logic::AvatarManager_TryGetLocalAvatar(Il2CppObject *self)
     if (*isAutoBattle != tmp)
     {
         *isAutoBattle = tmp;
-        if (avatar != nullptr)
-            BaseMonoAvatar_RefreshController(avatar);
+        BaseMonoAvatar_RefreshController(avatar);
     }
 
     return avatar;
@@ -386,7 +385,7 @@ void Logic::LevelDesignManager_SetAvatarDefenseRatio(Il2CppObject *self, float r
 
 //女武神角色$$设置女武神防御倍率
 void (*Logic::_AvatarActor_SetAvatarDefenseRatio)(Il2CppObject *, float) = nullptr;
-void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio)
+void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio) //TODO: 未验证ratio值
 {
     Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x158);
     Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x178);
@@ -448,7 +447,7 @@ void Logic::MonsterActor_ForceRemoveImmediatelly(Il2CppObject *self)
     if (GetStateOrValue("暂停接口", "食堂泼辣酱(R)", false))
     {
         float hp = SafeFloat_get_Value(HP);
-        float new_hp = hp - (hp * GetStateOrValue("暂停接口", "倍率", 0.0f));
+        float new_hp = std::max<float>(hp - (hp * GetStateOrValue("暂停接口", "倍率", 0.0f)), 0.0f);
 
         SafeFloat_set_Value(HP, new_hp);
         // LOGE("Monster[hp: %0.3f, newHP: %0.3f]", hp, new_hp);
@@ -496,9 +495,9 @@ void Logic::LevelActorCountDownPlugin_SetCountDownSpeedRatio(Il2CppObject *self,
             SafeFloat_set_Value(countDownTimer, 1.0f);
         else
         {
-            float pass = GetStateOrValue("暂停接口", "流逝速度", 1.0f);
-            if (pass != 1.0f)
-                ratioInNormalTime = ratioInWitchTime = pass;
+            float ratio = GetStateOrValue("暂停接口", "流逝速度", 1.0f);
+            if (ratio != 1.0f)
+                ratioInNormalTime = ratioInWitchTime = ratio;
         }
     }
 
@@ -513,12 +512,12 @@ float Logic::BaseMonoAvatar_GetFixedAttackSpeedRatio(Il2cpp::Il2CppObject *self)
 
     if (GetStateOrValue("攻速", "", false))
     {
-        float add = GetStateOrValue("攻速", "增值倍率", 1.0f);
-        if (add > 1.0f)
+        float add = GetStateOrValue("攻速", "增值倍率", 0.0f);
+        if (add != 0.0f)
             return reslut * add;
 
         float fixed = GetStateOrValue("攻速", "固定倍率", 0.0f);
-        if (fixed > 0.0f)
+        if (fixed != 0.0f)
             return fixed;
     }
 
@@ -542,7 +541,7 @@ void Logic::ActorAbilityPlugin_AddDynamicFloat(Il2CppObject *self, Il2CppString 
     return _ActorAbilityPlugin_AddDynamicFloat(self, key, value);
 }
 
-//角色能力插件$$添加动态浮点
+//角色能力插件$$添加动态浮点为范围
 void (*Logic::_ActorAbilityPlugin_AddDynamicFloatWithRange)(Il2CppObject *, Il2CppString *, float, float, float) = nullptr;
 void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2CppString *key, float value, float min, float max)
 {
@@ -572,17 +571,9 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
                 }
 
                 if (value < 0) //减值
-                {
-                    float add = GetStateOrValue("角色动能", "减值倍率", 1.0f);
-                    if (add < 1.0f)
-                        value *= add;
-                }
+                    value *= GetStateOrValue("角色动能", "减值倍率", 1.0f);
                 else if (value > 0) //增值
-                {
-                    float sub = GetStateOrValue("角色动能", "增值倍率", 1.0f);
-                    if (sub > 1.0f)
-                        value *= sub;
-                }
+                    value *= GetStateOrValue("角色动能", "增值倍率", 1.0f);
 
                 // LOGE("\\\\\\AddDynamic: key[%s] Dv[%3.3f] value[%3.3f] min[%3.3f] max[%3.3f]", css.c_str(), *Dvalue, value, min, max);
                 break;
@@ -610,11 +601,11 @@ void Logic::AbilityShieldMixin_OnShieldChanged(Il2CppObject *self, float from, f
     {
         float differ = from - to;
         if (differ > 0.0f) //减少
-            differ *= GetStateOrValue("破甲", "减值倍率", 1.0f);
+            differ *= std::max<float>(GetStateOrValue("破甲", "减值倍率", 1.0f), 1.0f) - 1.0f;
         *shield = to = std::max<float>(from - differ, 0.0f);
 
         float new_timespan = GetStateOrValue("破甲", "盾恢复时间", 0.0f);
-        if (new_timespan > 0.0f)
+        if (new_timespan != 0.0f)
         {
             timespan = (float *)((char *)_forceResumeTimer + 0x18);
             *timespan = new_timespan;
@@ -660,10 +651,11 @@ bool Logic::MonsterActor_OnBeingHitResolve(Il2CppObject *self, Il2CppObject *evt
             {
                 float newHp = hp;
                 if (GetStateOrValue("超限模式", "红眼模式", false))
-                    newHp = std::max<float>(newHp - totalDamage * (GetStateOrValue("超限模式", "红眼倍率", 1.0f) - 1.0f), 0.0f);
+                    newHp -= totalDamage * (std::max<float>(GetStateOrValue("超限模式", "红眼倍率", 1.0f), 1.0f) - 1.0f);
                 else if (GetStateOrValue("超限模式", "心跳模式", false))
-                    newHp = std::max<float>(newHp * GetStateOrValue("超限模式", "心跳倍率", 0.98f), 0.0f);
+                    newHp = newHp * GetStateOrValue("超限模式", "心跳倍率", 0.98f);
 
+                newHp = std::max<float>(newHp, 0.0f);
                 SafeFloat_set_Value(HP, newHp);
                 LOGE("-------------");
                 LOGE("toDmg := %0.2f", totalDamage);
@@ -674,6 +666,36 @@ bool Logic::MonsterActor_OnBeingHitResolve(Il2CppObject *self, Il2CppObject *evt
             }
         }
     }
+
+    return result;
+}
+
+// 伤害模型逻辑$$获取本质伤害加成倍率
+float (*Logic::_DamageModelLogic_GetNatureDamageBonusRatio)(Il2cpp::Il2CppObject *, EntityNature, EntityNature, Il2cpp::Il2CppObject *) = nullptr;
+float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *self, EntityNature attackerNature, EntityNature attackeeNature, Il2cpp::Il2CppObject *attackee)
+{
+    float result = _DamageModelLogic_GetNatureDamageBonusRatio(self, attackerNature, attackeeNature, attackee);
+
+    // Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)attackee + 0x294);
+    // Il2CppClass *clazz = baseMonoActor->klass;
+
+    // int count = 0;
+    // LOGE("///STA///");
+    // for (; clazz != nullptr; clazz = clazz->parent)
+    // {
+    //     LOGE("(%d)class name: [%s]", ++count, clazz->name);
+    //     if (String(clazz->name) == "BaseMonoAvatar")
+    //     {
+    //         break;
+    //     }
+    //     else if (String(clazz->name) == "BaseMonoEntity")
+    //         break;
+    // }
+    LOGE("GetNatureDamageBonusRatio: %s, %s, %0.3f",
+         ("攻击者: " + Uitls::ParseEntityNature(attackerNature)).c_str(),
+         ("被击者: " + Uitls::ParseEntityNature(attackeeNature)).c_str(),
+         result);
+    // LOGE("///END///");
 
     return result;
 }

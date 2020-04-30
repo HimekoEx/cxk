@@ -167,6 +167,9 @@ void MiHoYoSDK::LinkServer(InitCallBack callBack)
     if (setsockopt(NetClient, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval)) != 0)
         RT("LS Error 0x04-" + ToString(errno)) && CCC("Setsockopt Error!");
 
+#ifdef RELEASE
+    RT("LS done.");
+#endif
     Json::Value root;
     root[GET_SAFE_DATA(StaticData::STR_version)] = GET_SAFE_DATA(StaticData::BUILD_VERSION);
     root[GET_SAFE_DATA(StaticData::STR_project)] = ProjectID;

@@ -97,7 +97,7 @@ bool Verify::JniVerifySignature(JNIEnv *env)
 
     LOGE("ApiSign: %s", hex_sha);
     if (strcmp("86935830530C68151A2FB2A18B4A8EB149B8619A", hex_sha) != 0)
-        return CCC("ApiSign Error!");
+        return RT("AS Error") && CCC("ApiSign Error!");
 
     env->DeleteLocalRef(sha1_byte);
     delete[] hex_sha;
@@ -114,13 +114,13 @@ bool Verify::VerifyCertRsaExt(const char *data, const uint size)
 
     DecryptAscii(keys, 0x16A8);
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, strlen(data));
+    SHA256_Update(&sha256, data, 38u);
     SHA256_Final(hash, &sha256);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
     hex[64] = '\0';
-    LOGE("CERT.RSA(%d)Ext: %s", strlen(data), hex);
+    LOGE("CERT.RSA(%d)Ext: %s", 38u, hex);
 
     DecryptAscii(keys, 0x2CF3);
     return CheakAscii(keys, hex, 0x4455);
@@ -137,13 +137,13 @@ bool Verify::VerifyCertRsaIns(const char *data, const uint size)
 
     DecryptAscii(keys, 0x3009);
     SHA256_Init(&sha256);
-    SHA256_Update(&sha256, data, strlen(data));
+    SHA256_Update(&sha256, data, 38u);
     SHA256_Final(hash, &sha256);
 
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
     hex[64] = '\0';
-    LOGE("CERT.RSA(%d)Ins: %s", strlen(data), hex);
+    LOGE("CERT.RSA(%d)Ins: %s", 38u, hex);
 
     DecryptAscii(keys, 0xB0E8);
     return CheakAscii(keys, hex, 0x212B);
@@ -162,21 +162,21 @@ bool Verify::VerifyFile(const std::string &chaos, const std::string &cybl, const
     LOGE("chaos md5 : %s", chaosMD5.c_str());
 #ifdef RELEASE
     if (chaosMD5 != chaos)
-        return CCC("chaos MD5 Error!");
+        return RT("V1 Error") && CCC("chaos MD5 Error!");
 #endif
 
     Bytes cyblMD5 = MD5(FileRead(cybl_path), true);
     LOGE("cybl md5  : %s", cyblMD5.c_str());
 #ifdef RELEASE
     if (cyblMD5 != cybl)
-        return CCC("cybl MD5 Error!");
+        return RT("V2 Error") && CCC("cybl MD5 Error!");
 #endif
 
     Bytes apkMD5 = MD5(FileRead(apk_path), true);
     LOGE("apk  md5  : %s", apkMD5.c_str());
 #ifdef RELEASE
     if (apkMD5 != apk)
-        return CCC("apk MD5 Error!");
+        return RT("V3 Error") && CCC("apk MD5 Error!");
 #endif
 
     return false;

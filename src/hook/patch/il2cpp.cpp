@@ -15,7 +15,14 @@ void Patch::FirstPatchIl2cpp()
     zzCodePatch(Address[1] + 0x154, NOP);
 
     //解锁服装
-    zzCodePatch(Address[2] + 0xFC, NOP);
+    if (GetStateOrValue("解锁服装", "", false))
+        zzCodePatch(Address[2] + 0xFC, NOP);
+
+    //关闭强制刷新服装
+    zzCodePatch(Address[3] + 0x26C, NOP);
+
+    // const ulong tmp = 0xEA001C25;
+    // zzCodePatch(Sync::Il2cpp + 0x1098DFC, tmp);
 }
 
 // 循环修改il2cpp

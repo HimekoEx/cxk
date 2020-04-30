@@ -44,7 +44,7 @@ void Hook::Dlopen::ReplaceDlopen()
 bool Hook::Dlopen::LoadedLib(const char *name, void *handle)
 {
     using namespace MiHoYoSDK::StaticData;
-    
+
     if (handle == nullptr)
         return false;
 
@@ -53,7 +53,7 @@ bool Hook::Dlopen::LoadedLib(const char *name, void *handle)
 
     if (!HookLock_Il2cpp && strstr(name, GET_SAFE_CHAR(STR_il2cppLib)))
         return HookLock_Il2cpp = Loaded::LoadIl2cppLib(handle);
-        // return HookLock_Il2cpp = FuckingIl2cpp(handle);
+    // return HookLock_Il2cpp = FuckingIl2cpp(handle);
 
     return false;
 }

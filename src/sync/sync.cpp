@@ -36,7 +36,7 @@ void Sync::InitAddress(ulong il2cpp)
     //1-可触摸隐私部位 BaseGalTouchSystem$$DoNormalReaction 原函数名 GetReaction
     //2-解锁皮肤 DressInfoManager$$UnlockDress
     //3-皮肤重置 DressInfoManager$$OnGetAvatarDataRsp 原类 DressModule
-    ulong tmp[ADSS_NUM] = {0x628EA48, 0x695F768, 0x10AF378, 0x10AF0C0};
+    ulong tmp[ADSS_NUM] = {0x628EA48, 0x695F768, 0x10AF378, 0x10B4118};
 
     for (int i = 0; i < ADSS_NUM; i++)
         Address[i] = tmp[i] + il2cpp;
@@ -106,7 +106,7 @@ void Sync::SyncJsonConfig()
             lineData.LineType = lineDataObjcet[GET_SAFE_DATA(STR_lineType)].asInt();
 
             if (lineData.LineType == 1)
-                lineData.LineValue = std::stod(lineDataObjcet[GET_SAFE_DATA(STR_lineValue)].asString());
+                lineData.LineValue = std::stod(lineDataObjcet[GET_SAFE_DATA(STR_lineValue)].asString()); //TODO: 未测试是否识别负号
             else if (lineData.LineType == 2)
                 lineData.LineState = lineDataObjcet[GET_SAFE_DATA(STR_lineState)].asBool();
 
@@ -141,6 +141,9 @@ bool Sync::InitConfig(const MiHoYoSDK::Bytes &config)
             // RT(ToString(i) + ": " + data[i].asString());
             OpenFuncs->insert(data[i].asString());
         }
+#ifdef RELEASE
+        RT("IC done.");
+#endif
     }
 
     // 自校验
@@ -153,6 +156,9 @@ bool Sync::InitConfig(const MiHoYoSDK::Bytes &config)
                            root[GET_SAFE_DATA(STR_apk)].asString());
 
         MiHoYoSDK::UncompressAPK(apk_path, GET_SAFE_DATA(PATH_RSA), Verify::VerifyCertRsaIns);
+#ifdef RELEASE
+        RT("IC-VF done.");
+#endif
     }
 
     return false;

@@ -1,5 +1,5 @@
 #项目根目录的绝对路径
-APP_PROJECT_PATH := C:\Users\Himeko\Desktop\dev-s
+APP_PROJECT_PATH := E:\BBAK\cxk
 
 #编译的ABI
 APP_ABI := armeabi-v7a

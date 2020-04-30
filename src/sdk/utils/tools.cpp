@@ -50,7 +50,7 @@ std::string MiHoYoSDK::NowTime()
 }
 
 // 获取JINEnv
-JNIEnv *MiHoYoSDK::GetGEnv()
+JNIEnv *MiHoYoSDK::GetJEnv()
 {
     JNIEnv *env;
     Jvm->GetEnv((void **)&env, JNI_VERSION_1_6);
@@ -82,7 +82,7 @@ bool MiHoYoSDK::CloseJVM(std::string msg)
     else
         LOGE("CCC Error: %s", msg.c_str());
 
-    JNIEnv *env = GetGEnv();
+    JNIEnv *env = GetJEnv();
     env->ExceptionClear();
     env->FatalError("");
     return true;
@@ -217,7 +217,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::GetUUID()
     //系统版本
     std::string version = FileLine(GET_SAFE_CHAR(PATH_SystemVersion));
     StrDeleteMark(version, " "); //删掉空格
-    buff = MD5(buff += MD5(version, true));
+    buff = MD5(buff += MD5(version));
 
     //整体的MD5
     buff = MD5(buff += MD5(buff));

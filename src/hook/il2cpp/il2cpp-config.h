@@ -4,14 +4,14 @@
 //Hook架构
 namespace Hook
 {
-//Lib加载模块
-namespace Loaded
-{
-//Il2cpp模块
-namespace Il2cpp
-{
+    //Lib加载模块
+    namespace Loaded
+    {
+        //Il2cpp模块
+        namespace Il2cpp
+        {
 
-typedef int32_t il2cpp_hresult_t;
+            typedef int32_t il2cpp_hresult_t;
 
 // Sorted numerically!
 #define IL2CPP_S_OK ((il2cpp_hresult_t)0)
@@ -58,6 +58,6 @@ typedef int32_t il2cpp_hresult_t;
 
 #define ALIGN_TYPE(val) __attribute__((aligned(val)))
 
-} // namespace Il2cpp
-} // namespace Loaded
+        } // namespace Il2cpp
+    }     // namespace Loaded
 } // namespace Hook

@@ -440,4 +440,37 @@ std::string Hook::Uitls::ParseStageCheatData(Loaded::Logic::StageCheatData_Type 
     tmp += ToString(value);
     return tmp;
 }
+
+// 解析EntityNature
+std::string Hook::Uitls::ParseEntityNature(Loaded::Logic::EntityNature type)
+{
+    std::string tmp = "EntityNature[";
+    switch (type)
+    {
+    case Loaded::Logic::EntityNature::Pure:
+        tmp += "纯净";
+        break;
+    case Loaded::Logic::EntityNature::Biology:
+        tmp += "生物";
+        break;
+    case Loaded::Logic::EntityNature::Psycho:
+        tmp += "异能";
+        break;
+    case Loaded::Logic::EntityNature::Mechanic:
+        tmp += "机械";
+        break;
+    case Loaded::Logic::EntityNature::Quantum:
+        tmp += "量子";
+        break;
+    case Loaded::Logic::EntityNature::Imaginary:
+        tmp += "虚数";
+        break;
+    case Loaded::Logic::EntityNature::Count:
+        tmp += "??";
+        break;
+    }
+
+    tmp += "]";
+    return tmp;
+}
 #endif

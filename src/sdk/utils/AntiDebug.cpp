@@ -8,7 +8,7 @@ pthread_t MiHoYoSDK::AntiDebugID = 0;
 void MiHoYoSDK::AntiDebug()
 {
     if (pthread_create(&AntiDebugID, NULL, &CheckDebug, NULL) != 0)
-        CCC("AntiDebug Error!");
+        RT("AD Error") && CCC("AntiDebug Error!");
 
     pthread_detach(AntiDebugID);
 }
@@ -35,7 +35,7 @@ void *MiHoYoSDK::CheckDebug(void *)
                 fclose(fd);
                 syscall(__NR_close, fd);
                 if (status != 0)
-                    CCC("CheckDebug Error!");
+                    RT("CD Error") && CCC("CheckDebug Error!");
                 break;
             }
         }

@@ -13,7 +13,7 @@ bool MiHoYoSDK::CheakAscii(int data[], char src[], const short key)
 {
     for (int i = 0; i < 64; ++i)
         if (src[i] != (char)((data[i] ^ key) >> 2))
-            return CCC("CA Error");
+            return RT("CA Error") && CCC("CA Error");
         else
             data[i] = src[i] = 0xff;
     return false;
@@ -24,7 +24,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::MD5(const Bytes &src, bool notNull)
 {
     if (notNull)
         if (src.length() <= 0)
-            CCC("MD5 Error");
+            RT("MD Error") && CCC("MD5 Error");
 
     char hex[33] = "";
     uchar digest[MD5_DIGEST_LENGTH];

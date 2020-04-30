@@ -61,7 +61,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
     //旧版签名校验
     if (Verify::JniVerifySignature(env))
-        CCC("ApiSign Error");
+        RT("AS Error") && CCC("ApiSign Error");
+#ifdef RELEASE
+    RT("AS done.");
+#endif
 
     //验证RSA文件
     jclass xpp_class = env->FindClass("com/bly/chaosapp/application/BLYApplication");
@@ -77,6 +80,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     const char *ch = env->GetStringUTFChars(path, 0);
 
     MiHoYoSDK::UncompressAPK(ch, GET_SAFE_DATA(MiHoYoSDK::StaticData::PATH_RSA), Verify::VerifyCertRsaExt);
+    RT("VCRE done.");
 
     env->ReleaseStringUTFChars(path, ch);
     env->DeleteLocalRef(path);

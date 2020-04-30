@@ -60,7 +60,8 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         Il2CppClass *ActorAbilityPlugin = Class_FromName(image, namespaze, "ActorAbilityPlugin");
         Il2CppClass *AbilityShieldMixin = Class_FromName(image, namespaze, "AbilityShieldMixin");
         Il2CppClass *AttackResult = Class_FromName(image, namespaze, "AttackResult");
-        Il2CppClass *MonsterActor = Class_FromName(image, namespaze, "FBEJPNMHLMB"); //
+        Il2CppClass *MonsterActor = Class_FromName(image, namespaze, "FBEJPNMHLMB");
+        Il2CppClass *DamageModelLogic = Class_FromName(image, namespaze, "OALPDPHBIEL");
 
         { //获取游戏内置UUID
             HookFunc(NetworkManager, "GetPersistentUUID", 0, NetworkManager_GetPersistentUUID, &_NetworkManager_GetPersistentUUID);
@@ -224,6 +225,9 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
                 HookFunc(AttackResult, "GetTotalDamage", 0, AttackResult_GetTotalDamage, &_AttackResult_GetTotalDamage);
                 HookFunc(MonsterActor, "OnBeingHitResolve", 1, MonsterActor_OnBeingHitResolve, &_MonsterActor_OnBeingHitResolve);
             }
+
+            HookFunc(DamageModelLogic, "KFJJGCMBFLE", 3,
+                     DamageModelLogic_GetNatureDamageBonusRatio, &_DamageModelLogic_GetNatureDamageBonusRatio);
         }
     }
     else if (!MonoMTP && !strcmp(name, "MonoMTP") && (MonoMTP = result))

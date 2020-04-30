@@ -4,11 +4,11 @@
 //SDK
 namespace MiHoYoSDK
 {
-//静态数据
-namespace StaticData
-{
+    //静态数据
+    namespace StaticData
+    {
 
-extern int STR_md5Format[4];
+        extern int STR_md5Format[4];
 
-}
-}
+    }
+} // namespace MiHoYoSDK
