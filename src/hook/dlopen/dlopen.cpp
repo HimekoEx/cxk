@@ -9,7 +9,7 @@ void Hook::Dlopen::ReplaceDlopen()
     using namespace MiHoYoSDK;
     using namespace MiHoYoSDK::StaticData;
 
-    std::string lib_path = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string lib_path = FileLine(GET_SAFE_DATA(PATH_Pack));
     lib_path += GET_SAFE_DATA(PATH_LIBchaos);
 
     void *handle = dlopen(lib_path.c_str(), RTLD_NOW);
@@ -37,6 +37,7 @@ void Hook::Dlopen::ReplaceDlopen()
     zzReplace(v24_addr, DlopenV24, &_DlopenV24);
     zzReplace(v26_addr, DlopenV26, &_DlopenV26);
 
+    dlclose(handle);
     RT("RD hook done...");
 }
 
@@ -53,7 +54,6 @@ bool Hook::Dlopen::LoadedLib(const char *name, void *handle)
 
     if (!HookLock_Il2cpp && strstr(name, GET_SAFE_CHAR(STR_il2cppLib)))
         return HookLock_Il2cpp = Loaded::LoadIl2cppLib(handle);
-    // return HookLock_Il2cpp = FuckingIl2cpp(handle);
 
     return false;
 }

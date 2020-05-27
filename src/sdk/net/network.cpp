@@ -172,11 +172,11 @@ void MiHoYoSDK::LinkServer(InitCallBack callBack)
 #endif
     Json::Value root;
     root[GET_SAFE_DATA(StaticData::STR_version)] = GET_SAFE_DATA(StaticData::BUILD_VERSION);
-    root[GET_SAFE_DATA(StaticData::STR_project)] = ProjectID;
-    root[GET_SAFE_DATA(StaticData::STR_channel)] = ChannelID;
+    root[GET_SAFE_DATA(StaticData::STR_project)] = IDToProject(ProjectID).get();
+    root[GET_SAFE_DATA(StaticData::STR_channel)] = IDToChannel(ChannelID).get();
     root[GET_SAFE_DATA(StaticData::STR_uuid)] = GetUUID().get();
     root[GET_SAFE_DATA(StaticData::STR_uif)] = FileRead(GET_SAFE_DATA(StaticData::PATH_uif));
 
-    if (callBack(SendJSON(GET_SAFE_CHAR(StaticData::STR_login), root)))
+    if (callBack(SendJSON(GET_SAFE_CHAR(StaticData::STR_sdkLogin), root)))
         RT("LS Error 0x05") && CCC("CallBark Error!");
 }

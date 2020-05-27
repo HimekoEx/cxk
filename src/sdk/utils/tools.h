@@ -23,6 +23,10 @@ namespace MiHoYoSDK
     JNIEnv *GetJEnv();
     // 初始化运行日志
     void RunTimeInit();
+    // 通过ID转换Project SafeChar
+    SafeChars IDToProject(uint id);
+    // 通过ID转换Channelt SafeChar
+    SafeChars IDToChannel(uint id);
     // 关闭Java虚拟机
     bool CloseJVM(std::string msg = "");
     // 获取机器UUID

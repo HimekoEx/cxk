@@ -15,48 +15,48 @@ namespace Hook
             class CSharpString
             {
             private:
-                JNIEnv *env;
-                int32_t length;
-                jstring string;
-                const char *chars;
-                std::string strs;
+                JNIEnv *mEnv = nullptr;
+                int32_t mLength = 0;
+                jstring mJstring = nullptr;
+                const char *mChars = nullptr;
+                std::string mStrs;
 
             public:
                 CSharpString(Il2cpp::Il2CppString *src)
                 {
-                    env = MiHoYoSDK::GetJEnv();
-                    length = src->length;
-                    string = env->NewString((const jchar *)(src->chars), length);
-                    if (string != nullptr)
-                        strs = chars = env->GetStringUTFChars(string, nullptr);
+                    mEnv = MiHoYoSDK::GetJEnv();
+                    mLength = src->length;
+                    mJstring = mEnv->NewString((const jchar *)(src->chars), mLength);
+                    if (mJstring != nullptr)
+                        mStrs = mChars = mEnv->GetStringUTFChars(mJstring, nullptr);
                     else
-                        strs = chars = nullptr;
+                        mStrs = mChars = nullptr;
                 }
 
-                std::string get()
+                const std::string get() const
                 {
-                    if (length == 0)
+                    if (mLength == 0)
                         return "(null)";
-                    if (string == nullptr)
-                        return "(error!)";
-                    return strs;
+                    if (mJstring == nullptr)
+                        return "(error)";
+                    return mStrs;
                 }
 
-                const char *c_str()
+                const char *c_str() const
                 {
-                    if (length == 0)
+                    if (mLength == 0)
                         return "(null)";
-                    if (string == nullptr)
-                        return "(error!)";
-                    return chars;
+                    if (mJstring == nullptr)
+                        return "(error)";
+                    return mChars;
                 }
 
-                int32_t getLength() { return length; }
+                const int32_t length() const { return mLength; }
 
                 ~CSharpString()
                 {
-                    env->ReleaseStringUTFChars(string, chars);
-                    env->DeleteLocalRef(string);
+                    mEnv->ReleaseStringUTFChars(mJstring, mChars);
+                    mEnv->DeleteLocalRef(mJstring);
                 }
             };
 

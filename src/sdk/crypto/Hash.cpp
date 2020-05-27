@@ -24,7 +24,7 @@ MiHoYoSDK::Bytes MiHoYoSDK::MD5(const Bytes &src, bool notNull)
 {
     if (notNull)
         if (src.length() <= 0)
-            RT("MD Error") && CCC("MD5 Error");
+            RT("MD Error") && CCC("MD5 Src Null Error");
 
     char hex[33] = "";
     uchar digest[MD5_DIGEST_LENGTH];

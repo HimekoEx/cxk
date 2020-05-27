@@ -41,7 +41,7 @@ void Logic::MonoMTP_Tp2UserLogin(Il2CppObject *self, Tp2Entry accountType, int w
     CSharpString roID = roleID;
     LOGE("Tp2UserLogin[accountType: %d, worldID: %d, openID: %s, roleID: %s]", accountType, worldID, opID.c_str(), roID.c_str());
 
-    return _MonoMTP_Tp2UserLogin(self, accountType, worldID, openID, roleID);
+    return _MonoMTP_Tp2UserLogin(self, accountType, worldID, String_New("4970492"), String_New("10039628"));
 }
 
 //SafeFloat$$获取值
@@ -118,12 +118,18 @@ Il2CppObject *Logic::AvatarManager_TryGetLocalAvatar(Il2CppObject *self)
 {
     Il2CppObject *avatar = _AvatarManager_TryGetLocalAvatar(self);
 
-    bool *isAutoBattle = (bool *)((char *)self + 0x10);
-    bool tmp = GetStateOrValue("自动攻击", "", false);
-    if (*isAutoBattle != tmp)
+    if (avatar != nullptr)
     {
-        *isAutoBattle = tmp;
-        BaseMonoAvatar_RefreshController(avatar);
+        bool *isAutoBattle = (bool *)((char *)self + 0x10);
+        bool tmp = GetStateOrValue("自动攻击", "", false);
+        if (*isAutoBattle != tmp)
+        {
+            LOGE("avatar: %p", avatar);
+            LOGE("isAutoBattle: %s", BoolToChar(*isAutoBattle));
+            LOGE("tmp: %s", BoolToChar(tmp));
+            *isAutoBattle = tmp;
+            BaseMonoAvatar_RefreshController(avatar);
+        }
     }
 
     return avatar;
@@ -150,7 +156,7 @@ void Logic::BaseMonoMonster_SetAttackTarget(Il2CppObject *self, Il2CppObject *ne
 bool (*Logic::_BaseAbilityActor_CanBeDamageByRuntimeid)(Il2CppObject *self, uint runtimeID) = nullptr;
 bool Logic::BaseAbilityActor_CanBeDamageByRuntimeid(Il2CppObject *self, uint runtimeID)
 {
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x294);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     for (; clazz != nullptr; clazz = clazz->parent)
@@ -176,7 +182,7 @@ void Logic::BaseAbilityActor_HealSP(Il2CppObject *self, float amount, LevelSPRec
     Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x158);
     Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x178);
 
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x294);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     for (; clazz != nullptr; clazz = clazz->parent)
@@ -309,7 +315,7 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
     Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x148);
     Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x168);
 
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x294);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     if (GetStateOrValue("吸血吸能", "", false))
@@ -554,7 +560,7 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
         // LOGE("///AddDynamic: key[%s] Dv[%3.3f] value[%3.3f] min[%3.3f] max[%3.3f]", css.c_str(), *Dvalue, value, min, max);
 
         Il2CppObject *_owner = *(Il2CppObject **)((char *)self + 0xC);
-        Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)_owner + 0x294);
+        Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)_owner + 0x298);
         Il2CppClass *clazz = baseMonoActor->klass;
 
         // int count = 0;
@@ -661,7 +667,7 @@ bool Logic::MonsterActor_OnBeingHitResolve(Il2CppObject *self, Il2CppObject *evt
                 LOGE("toDmg := %0.2f", totalDamage);
                 LOGE("orgHp := %0.2f", hp);
                 LOGE("newHp := %0.2f", newHp);
-                LOGE("doDmg := %0.2f", hp - newHp);
+                LOGE("doDmg := %0.2f", hp - newHp + totalDamage);
                 LOGE("-------------");
             }
         }
@@ -676,7 +682,7 @@ float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *se
 {
     float result = _DamageModelLogic_GetNatureDamageBonusRatio(self, attackerNature, attackeeNature, attackee);
 
-    // Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)attackee + 0x294);
+    // Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)attackee + 0x298);
     // Il2CppClass *clazz = baseMonoActor->klass;
 
     // int count = 0;

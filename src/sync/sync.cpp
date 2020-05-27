@@ -6,8 +6,8 @@ using namespace MiHoYoSDK;
 using namespace MiHoYoSDK::StaticData;
 
 ulong Sync::Il2cpp = 0;
-int Sync::MTP_Off = 0;
-std::set<std::string> *Sync::OpenFuncs = nullptr;
+int Sync::Off_MTP = 0;
+std::set<std::string> *Sync::OpenFunc = nullptr;
 std::array<ulong, Sync::ADSS_NUM> Sync::Address;
 std::map<ulong, std::map<ulong, ulong>> *Sync::PatchData = nullptr;
 std::map<std::string, Sync::MainData> *Sync::Config = nullptr;
@@ -16,8 +16,8 @@ std::map<std::string, Sync::MainData> *Sync::Config = nullptr;
 void Sync::InitAllVariable()
 {
     srand((uint)time(nullptr));
-    if (OpenFuncs == nullptr)
-        OpenFuncs = new std::set<std::string>;
+    if (OpenFunc == nullptr)
+        OpenFunc = new std::set<std::string>;
 
     if (PatchData == nullptr)
         PatchData = new std::map<ulong, std::map<ulong, ulong>>;
@@ -30,13 +30,13 @@ void Sync::InitAllVariable()
 void Sync::InitAddress(ulong il2cpp)
 {
     Sync::Il2cpp = il2cpp;
-    LOGE("il2cpp >> 0x%lX", il2cpp);
+    LOGE("il2cpp >>> 0x%lX <<<", il2cpp);
 
     //0-三星条件选择器 LevelChallengeHelperPlugin$$CreateChallengeById
     //1-可触摸隐私部位 BaseGalTouchSystem$$DoNormalReaction 原函数名 GetReaction
-    //2-解锁皮肤 DressInfoManager$$UnlockDress
-    //3-皮肤重置 DressInfoManager$$OnGetAvatarDataRsp 原类 DressModule
-    ulong tmp[ADSS_NUM] = {0x628EA48, 0x695F768, 0x10AF378, 0x10B4118};
+    //2-解锁皮肤 DressModule$$UnlockDress 原类DressInfoManager (public void \w{11}\(int \w{11}\);) 
+    //3-皮肤重置 DressModule$$OnGetAvatarDataRsp    private bool \w{11}\(GetAvatarDataRsp \w{11}\);
+    ulong tmp[ADSS_NUM] = {0xFAF934, 0x3724034, 0x39AA814, 0x39AD180};
 
     for (int i = 0; i < ADSS_NUM; i++)
         Address[i] = tmp[i] + il2cpp;
@@ -52,7 +52,7 @@ void Sync::SyncJsonConfig()
     Json::Value configRoot, sendRoot, readRoot;
 
     //读取文件
-    configStr = FileRead(GET_SAFE_DATA(PATH_JsonConfigs));
+    configStr = FileRead(GET_SAFE_DATA(PATH_Main) + IDToProject(ProjectID).get() + ".json");
 
     //解析json
     if (!jsonReader.parse(configStr, configRoot))
@@ -65,7 +65,7 @@ void Sync::SyncJsonConfig()
     //发送数据
     sendRoot[GET_SAFE_DATA(STR_version)] = configRoot[GET_SAFE_DATA(STR_version)];
     // int tmp = (100 + rand()) % 100;
-    // if (tmp > 95)
+    // if (tmp > 95)//%95
     // {
     //     Verify::VerifyVFC();
     //     sendRoot["chaos"] = Verify::GetChaosMD5().get();
@@ -119,7 +119,7 @@ void Sync::SyncJsonConfig()
 }
 
 // 通过服务器发送的配置进行初始化
-bool Sync::InitConfig(const MiHoYoSDK::Bytes &config)
+bool Sync::InitConfig(MiHoYoSDK::Bytes &&config)
 {
     Json::Reader reader;
     Json::Value root, data;
@@ -128,18 +128,18 @@ bool Sync::InitConfig(const MiHoYoSDK::Bytes &config)
     if (!reader.parse(config.get(), root))
         RT("IC Error: 0x01") && CCC("Parse Error");
 
-    MTP_Off = root[GET_SAFE_DATA(STR_off)].asInt();
+    Off_MTP = root[GET_SAFE_DATA(STR_offM)].asInt();
 
-    // 构建函数Hook
+    // 构建开启函数
     {
-        std::string Funcs = root[GET_SAFE_DATA(STR_funcs)].asString();
+        std::string Funcs = root[GET_SAFE_DATA(STR_func)].asString();
         if (!reader.parse(Funcs, data))
             RT("IC Error: 0x02") && CCC("Parse Error");
 
         for (int i = 0; i < data.size(); ++i)
         {
             // RT(ToString(i) + ": " + data[i].asString());
-            OpenFuncs->insert(data[i].asString());
+            OpenFunc->insert(data[i].asString());
         }
 #ifdef RELEASE
         RT("IC done.");
@@ -148,7 +148,7 @@ bool Sync::InitConfig(const MiHoYoSDK::Bytes &config)
 
     // 自校验
     {
-        std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+        std::string package = FileLine(GET_SAFE_DATA(PATH_Pack));
         std::string apk_path = package + GET_SAFE_DATA(PATH_baseAPK);
 
         Verify::VerifyFile(root[GET_SAFE_DATA(STR_chaos)].asString(),

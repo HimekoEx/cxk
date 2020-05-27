@@ -32,13 +32,13 @@ int MiHoYoSDK::StaticData::STR_lineValue[9] =
 int MiHoYoSDK::StaticData::STR_lineState[9] =
     {31434, 31326, 31298, 31342, 31414, 31274, 31358, 31274, 31342};
 
-//字符串 off
-int MiHoYoSDK::StaticData::STR_off[3] =
-    {31302, 31330, 31330};
+//字符串 offM
+int MiHoYoSDK::StaticData::STR_offM[4] =
+    {31302, 31330, 31330, 31438};
 
-//字符串 funcs
-int MiHoYoSDK::StaticData::STR_funcs[5] =
-    {31330, 31278, 31298, 31350, 31286};
+//字符串 func
+int MiHoYoSDK::StaticData::STR_func[4] =
+    {31330, 31278, 31298, 31350};
 
 //字符串 chaos
 int MiHoYoSDK::StaticData::STR_chaos[5] =

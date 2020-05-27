@@ -9,11 +9,15 @@ bool Hook::Loaded::LoadTersafe2Lib(void *handle)
     if (lib_addr == 0ul)
         return RT("T2 Error 0x01") && CCC("tpsafeLib NULL Error!");
 
-    if (Sync::MTP_Off <= 0)
-        return RT("T2 Error 0x02") && CCC("MTP_Off NULL Error!");
+    if (Sync::Off_MTP <= 0)
+        return RT("T2 Error 0x02") && CCC("Off_MTP NULL Error!");
 
-    //Sync::MTP_Off = 0xD6820;
-    zzReplace(lib_addr + Sync::MTP_Off, Tersafe2::SysOpen, &Tersafe2::_SysOpen);
+    //Sync::Off_MTP = 0xD6820;
+    zzReplace(lib_addr + Sync::Off_MTP, Tersafe2::SysOpen, &Tersafe2::_SysOpen);
+
+#ifndef RELEASE
+    RT("MTP Hook Done...");
+#endif
 
     return true;
 }

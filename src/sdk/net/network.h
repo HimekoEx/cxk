@@ -1,7 +1,7 @@
 #pragma once
 #include "src/sdk/Bytes.hpp"
 
-typedef bool (*InitCallBack)(const MiHoYoSDK::Bytes &src);
+typedef bool (*InitCallBack)(MiHoYoSDK::Bytes &&src);
 
 //SDK
 namespace MiHoYoSDK

@@ -16,8 +16,8 @@ namespace MiHoYoSDK
         extern int STR_lineType[8];
         extern int STR_lineValue[9];
         extern int STR_lineState[9];
-        extern int STR_off[3];
-        extern int STR_funcs[5];
+        extern int STR_offM[4];
+        extern int STR_func[4];
         extern int STR_chaos[5];
         extern int STR_cybl[4];
         extern int STR_apk[3];

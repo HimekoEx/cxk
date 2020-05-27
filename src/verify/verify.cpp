@@ -95,7 +95,9 @@ bool Verify::JniVerifySignature(JNIEnv *env)
     }
     hex_sha[array_size * 2] = '\0';
 
+#ifdef SignLog
     LOGE("ApiSign: %s", hex_sha);
+#endif
     if (strcmp("86935830530C68151A2FB2A18B4A8EB149B8619A", hex_sha) != 0)
         return RT("AS Error") && CCC("ApiSign Error!");
 
@@ -120,7 +122,9 @@ bool Verify::VerifyCertRsaExt(const char *data, const uint size)
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
     hex[64] = '\0';
+#ifdef SignLog
     LOGE("CERT.RSA(%d)Ext: %s", 38u, hex);
+#endif
 
     DecryptAscii(keys, 0x2CF3);
     return CheakAscii(keys, hex, 0x4455);
@@ -143,7 +147,9 @@ bool Verify::VerifyCertRsaIns(const char *data, const uint size)
     for (int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
         snprintf(hex + (i * 2), 3, GET_SAFE_CHAR(StaticData::STR_md5Format), hash[i]);
     hex[64] = '\0';
+#ifdef SignLog
     LOGE("CERT.RSA(%d)Ins: %s", 38u, hex);
+#endif
 
     DecryptAscii(keys, 0xB0E8);
     return CheakAscii(keys, hex, 0x212B);
@@ -152,28 +158,34 @@ bool Verify::VerifyCertRsaIns(const char *data, const uint size)
 // 文件验证
 bool Verify::VerifyFile(const std::string &chaos, const std::string &cybl, const std::string &apk)
 {
-    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string package = FileLine(GET_SAFE_DATA(PATH_Pack));
 
     std::string chaos_path = package + GET_SAFE_DATA(PATH_LIBchaos);
     std::string cybl_path = package + GET_SAFE_DATA(PATH_LIBcybl);
     std::string apk_path = package + GET_SAFE_DATA(PATH_baseAPK);
 
     Bytes chaosMD5 = MD5(FileRead(chaos_path), true);
+#ifdef SignLog
     LOGE("chaos md5 : %s", chaosMD5.c_str());
+#endif
 #ifdef RELEASE
     if (chaosMD5 != chaos)
         return RT("V1 Error") && CCC("chaos MD5 Error!");
 #endif
 
     Bytes cyblMD5 = MD5(FileRead(cybl_path), true);
+#ifdef SignLog
     LOGE("cybl md5  : %s", cyblMD5.c_str());
+#endif
 #ifdef RELEASE
     if (cyblMD5 != cybl)
         return RT("V2 Error") && CCC("cybl MD5 Error!");
 #endif
 
     Bytes apkMD5 = MD5(FileRead(apk_path), true);
+#ifdef SignLog
     LOGE("apk  md5  : %s", apkMD5.c_str());
+#endif
 #ifdef RELEASE
     if (apkMD5 != apk)
         return RT("V3 Error") && CCC("apk MD5 Error!");
@@ -185,7 +197,7 @@ bool Verify::VerifyFile(const std::string &chaos, const std::string &cybl, const
 // 获取Chaos的MD5
 MiHoYoSDK::Bytes Verify::GetChaosMD5()
 {
-    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string package = FileLine(GET_SAFE_DATA(PATH_Pack));
     std::string chaos_path = package + GET_SAFE_DATA(PATH_LIBchaos);
     return MD5(FileRead(chaos_path), true);
 }
@@ -193,7 +205,7 @@ MiHoYoSDK::Bytes Verify::GetChaosMD5()
 // 获取CyBL的MD5
 MiHoYoSDK::Bytes Verify::GetCyBLMD5()
 {
-    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string package = FileLine(GET_SAFE_DATA(PATH_Pack));
     std::string cybl_path = package + GET_SAFE_DATA(PATH_LIBcybl);
     return MD5(FileRead(cybl_path), true);
 }
@@ -201,7 +213,7 @@ MiHoYoSDK::Bytes Verify::GetCyBLMD5()
 // 获取APK的MD5
 MiHoYoSDK::Bytes Verify::GetAPKMD5()
 {
-    std::string package = FileLine(GET_SAFE_DATA(PATH_cfg));
+    std::string package = FileLine(GET_SAFE_DATA(PATH_Pack));
     std::string apk_path = package + GET_SAFE_DATA(PATH_baseAPK);
     return MD5(FileRead(apk_path), true);
 }

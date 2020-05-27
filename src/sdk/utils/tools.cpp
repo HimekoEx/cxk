@@ -70,8 +70,41 @@ void MiHoYoSDK::RunTimeInit()
     if (RunTimeStream == nullptr || !RunTimeStream->is_open())
         CCC("RT Open Error!");
 
-    RT(GET_SAFE_DATA(StaticData::STR_logStart) +
-       GET_SAFE_DATA(StaticData::BUILD_VERSION));
+    RT(GET_SAFE_DATA(StaticData::STR_logStart) + GET_SAFE_DATA(StaticData::BUILD_VERSION));
+}
+
+// 通过ID转换Project SafeChar
+MiHoYoSDK::SafeChars MiHoYoSDK::IDToProject(uint id)
+{
+    switch (id)
+    {
+    case 1:
+        return SafeChars(GET_SAFE_CORT(StaticData::STR_hk3));
+
+    case 2:
+        return SafeChars(GET_SAFE_CORT(StaticData::STR_aks));
+
+    default:
+        CCC("Project ID Error!");
+        return SafeChars(nullptr, 0);
+    }
+}
+
+// 通过ID转换Channelt SafeChar
+MiHoYoSDK::SafeChars MiHoYoSDK::IDToChannel(uint id)
+{
+    switch (id)
+    {
+    case 1:
+        return SafeChars(GET_SAFE_CORT(StaticData::STR_official));
+
+    case 2:
+        return SafeChars(GET_SAFE_CORT(StaticData::STR_bilibili));
+
+    default:
+        CCC("Channelt ID Error!");
+        return SafeChars(nullptr, 0);
+    }
 }
 
 // 关闭Java虚拟机

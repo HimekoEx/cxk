@@ -21,8 +21,9 @@ void Patch::FirstPatchIl2cpp()
     //关闭强制刷新服装
     zzCodePatch(Address[3] + 0x26C, NOP);
 
-    // const ulong tmp = 0xEA001C25;
-    // zzCodePatch(Sync::Il2cpp + 0x1098DFC, tmp);
+#ifndef RELEASE
+    RT("Patch Done...");
+#endif
 }
 
 // 循环修改il2cpp

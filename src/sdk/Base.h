@@ -9,7 +9,7 @@
 #include <android/log.h>
 
 //第三方库
-#include <fix.h>
+#include <src/fix.h>
 #include <openssl/ossl_typ.h>
 #include <json/json.h>
 

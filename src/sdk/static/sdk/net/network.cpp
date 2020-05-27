@@ -44,9 +44,9 @@ int MiHoYoSDK::StaticData::STR_uuid[4] =
 int MiHoYoSDK::StaticData::STR_uif[3] =
     {31278, 31326, 31330};
 
-//字符串 login
-int MiHoYoSDK::StaticData::STR_login[5] =
-    {31306, 31302, 31334, 31326, 31298};
+//字符串 sdkLogin
+int MiHoYoSDK::StaticData::STR_sdkLogin[8] =
+    {31286, 31338, 31318, 31434, 31302, 31334, 31326, 31298};
 
 //字符串 %05u
 int MiHoYoSDK::StaticData::STR_lenForm[4] =

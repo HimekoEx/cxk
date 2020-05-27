@@ -7,8 +7,11 @@ namespace MiHoYoSDK
     //静态数据
     namespace StaticData
     {
-
         extern int STR_timeFormat[30];
+        extern int STR_hk3[9];
+        extern int STR_aks[9];
+        extern int STR_official[8];
+        extern int STR_bilibili[8];
         extern int STR_logStart[18];
         extern int STR_roData01[17];
         extern int STR_roData02[16];

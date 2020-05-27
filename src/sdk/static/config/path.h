@@ -14,8 +14,8 @@ namespace MiHoYoSDK //SDK
         extern int PATH_CPUInfo[13];
         extern int PATH_MemInfo[13];
         extern int PATH_SystemVersion[13];
-        extern int PATH_cfg[40];
-        extern int PATH_JsonConfigs[41];
+        extern int PATH_Pack[36];
+        extern int PATH_Main[32];
         extern int PATH_LIBchaos[20];
         extern int PATH_LIBcybl[19];
         extern int PATH_baseAPK[9];

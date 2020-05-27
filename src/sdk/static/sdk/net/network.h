@@ -19,7 +19,7 @@ namespace MiHoYoSDK
         extern int STR_channel[7];
         extern int STR_uuid[4];
         extern int STR_uif[3];
-        extern int STR_login[5];
+        extern int STR_sdkLogin[8];
         extern int STR_lenForm[4];
 
     } // namespace StaticData
