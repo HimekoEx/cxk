@@ -231,7 +231,8 @@ namespace Hook
                 EndLoseJump = 5,
             };
 
-            enum class EntityNature //属性
+            // 角色属性
+            enum class EntityNature
             {
                 Pure = 0,      //纯净
                 Biology = 1,   //生物
@@ -240,6 +241,15 @@ namespace Hook
                 Quantum = 4,   //量子
                 Imaginary = 5, //虚数
                 Count = 6,
+            };
+
+            // 关卡状态
+            enum class LDState
+            {
+                Start = 0,   //开启
+                Running = 1, //运行中
+                End = 2,     //结束
+                Paused = 3,  //暂停
             };
 
         } // namespace Logic

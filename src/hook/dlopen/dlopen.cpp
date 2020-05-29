@@ -38,7 +38,9 @@ void Hook::Dlopen::ReplaceDlopen()
     zzReplace(v26_addr, DlopenV26, &_DlopenV26);
 
     dlclose(handle);
+#ifdef RELEASE
     RT("RD hook done...");
+#endif
 }
 
 // 动态库文件加载接口

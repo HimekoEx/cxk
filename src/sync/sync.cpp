@@ -34,9 +34,9 @@ void Sync::InitAddress(ulong il2cpp)
 
     //0-三星条件选择器 LevelChallengeHelperPlugin$$CreateChallengeById
     //1-可触摸隐私部位 BaseGalTouchSystem$$DoNormalReaction 原函数名 GetReaction
-    //2-解锁皮肤 DressModule$$UnlockDress 原类DressInfoManager (public void \w{11}\(int \w{11}\);) 
+    //2-解锁皮肤 DressModule$$UnlockDress 原类DressInfoManager public void \w{11}\(int \w{11}\);
     //3-皮肤重置 DressModule$$OnGetAvatarDataRsp    private bool \w{11}\(GetAvatarDataRsp \w{11}\);
-    ulong tmp[ADSS_NUM] = {0xFAF934, 0x3724034, 0x39AA814, 0x39AD180};
+    ulong tmp[ADSS_NUM] = {0x2001834, 0x38BB17C, 0x2D3AE74, 0x2D3AB30};
 
     for (int i = 0; i < ADSS_NUM; i++)
         Address[i] = tmp[i] + il2cpp;
@@ -138,7 +138,7 @@ bool Sync::InitConfig(MiHoYoSDK::Bytes &&config)
 
         for (int i = 0; i < data.size(); ++i)
         {
-            // RT(ToString(i) + ": " + data[i].asString());
+            RT("open -->> " + data[i].asString());
             OpenFunc->insert(data[i].asString());
         }
 #ifdef RELEASE

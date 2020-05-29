@@ -8,6 +8,7 @@ using namespace Hook::Loaded::Il2cpp;
 using Sync::GetStateOrValue;
 
 static bool GUID_LOCK = false;
+static bool PAUSE_LOCK = true;
 
 //网络管理器$$获取持久UUID
 Il2CppString *(*Logic::_NetworkManager_GetPersistentUUID)(Il2CppObject *) = nullptr;
@@ -124,9 +125,6 @@ Il2CppObject *Logic::AvatarManager_TryGetLocalAvatar(Il2CppObject *self)
         bool tmp = GetStateOrValue("自动攻击", "", false);
         if (*isAutoBattle != tmp)
         {
-            LOGE("avatar: %p", avatar);
-            LOGE("isAutoBattle: %s", BoolToChar(*isAutoBattle));
-            LOGE("tmp: %s", BoolToChar(tmp));
             *isAutoBattle = tmp;
             BaseMonoAvatar_RefreshController(avatar);
         }
@@ -156,7 +154,7 @@ void Logic::BaseMonoMonster_SetAttackTarget(Il2CppObject *self, Il2CppObject *ne
 bool (*Logic::_BaseAbilityActor_CanBeDamageByRuntimeid)(Il2CppObject *self, uint runtimeID) = nullptr;
 bool Logic::BaseAbilityActor_CanBeDamageByRuntimeid(Il2CppObject *self, uint runtimeID)
 {
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x1A8);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     for (; clazz != nullptr; clazz = clazz->parent)
@@ -179,10 +177,10 @@ bool Logic::BaseAbilityActor_CanBeDamageByRuntimeid(Il2CppObject *self, uint run
 void (*Logic::_BaseAbilityActor_HealSP)(Il2CppObject *, float, LevelSPRecoverSource) = nullptr;
 void Logic::BaseAbilityActor_HealSP(Il2CppObject *self, float amount, LevelSPRecoverSource source)
 {
-    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x158);
-    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x178);
+    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x68);
+    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x88);
 
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x1A8);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     for (; clazz != nullptr; clazz = clazz->parent)
@@ -309,13 +307,13 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
     float result = _BaseAbilityActor_GetProperty(self, propertyKey);
     CSharpString css = propertyKey;
 
-    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x158);
-    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x178);
+    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x68);
+    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x88);
 
-    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x148);
-    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x168);
+    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x58);
+    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x78);
 
-    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x298);
+    Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)self + 0x1A8);
     Il2CppClass *clazz = baseMonoActor->klass;
 
     if (GetStateOrValue("吸血吸能", "", false))
@@ -359,6 +357,22 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
     return result;
 }
 
+// 关卡设计管理$$核心
+void (*Logic::_LevelDesignManager_Core)(Il2cpp::Il2CppObject *) = nullptr;
+void Logic::LevelDesignManager_Core(Il2cpp::Il2CppObject *self)
+{
+    LDState *state = (LDState *)((char *)self + 0x50);
+    if (*state == LDState::Paused)
+    {
+        if (PAUSE_LOCK)
+            LevelDesignManager_SetPause(self, true);
+    }
+    else
+        PAUSE_LOCK = true;
+
+    return _LevelDesignManager_Core(self);
+}
+
 //关卡设计管理$$设置暂停
 void (*Logic::_LevelDesignManager_SetPause)(Il2CppObject *, bool) = nullptr;
 void Logic::LevelDesignManager_SetPause(Il2CppObject *self, bool pause)
@@ -371,7 +385,7 @@ void Logic::LevelDesignManager_SetPause(Il2CppObject *self, bool pause)
             GetStateOrValue("暂停接口", "不灭钻石(H/S)", false))
             LevelDesignManager_SetAvatarDefenseRatio(self, 1.0f);
         else if (GetStateOrValue("暂停接口", "砸瓦鲁多", false))
-            LevelDesignManager_KillAllMonstersIter(self, true, true, true);
+            LevelDesignManager_KillAllMonstersIter(self, true, true, true, false);
         else if (GetStateOrValue("暂停接口", "食堂泼辣酱(R)", false) ||
                  GetStateOrValue("暂停接口", "食堂泼辣酱(V)", false))
             LevelDesignManager_ClearAllMonsters(self, true);
@@ -379,7 +393,8 @@ void Logic::LevelDesignManager_SetPause(Il2CppObject *self, bool pause)
             LevelDesignManager_SetInLevelTimeCountDownSpeedRatio(self, 1.0f, 1.0f);
     }
 
-    return _LevelDesignManager_SetPause(self, pause);
+    PAUSE_LOCK = false;
+    // return _LevelDesignManager_SetPause(self, pause);
 }
 
 //关卡设计管理$$设置女武神防御倍率
@@ -393,11 +408,11 @@ void Logic::LevelDesignManager_SetAvatarDefenseRatio(Il2CppObject *self, float r
 void (*Logic::_AvatarActor_SetAvatarDefenseRatio)(Il2CppObject *, float) = nullptr;
 void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio) //TODO: 未验证ratio值
 {
-    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x158);
-    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x178);
+    Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x68);
+    Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x88);
 
-    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x148);
-    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x168);
+    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x58);
+    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x78);
 
     if (GetStateOrValue("暂停接口", "不灭钻石(H)", false))
     {
@@ -430,11 +445,13 @@ void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio) /
 }
 
 //关卡设计管理$$击杀所有怪物Iter
-void (*Logic::_LevelDesignManager_KillAllMonstersIter)(Il2CppObject *, bool, bool, bool) = nullptr;
+void (*Logic::_LevelDesignManager_KillAllMonstersIter)(Il2CppObject *, bool, bool, bool, bool) = nullptr;
 void Logic::LevelDesignManager_KillAllMonstersIter(
-    Il2CppObject *self, bool dropReward, bool killStatic, bool killUnacitve)
+    Il2CppObject *self, bool dropReward, bool killStatic, bool killUnacitve, bool isKilledByLocalAvatar)
 {
-    return _LevelDesignManager_KillAllMonstersIter(self, dropReward, killStatic, killUnacitve);
+    LOGE("ko no DIO da!");
+
+    return _LevelDesignManager_KillAllMonstersIter(self, dropReward, killStatic, killUnacitve, isKilledByLocalAvatar);
 }
 
 //关卡设计管理$$清除所有怪物
@@ -448,7 +465,7 @@ void Logic::LevelDesignManager_ClearAllMonsters(Il2CppObject *self, bool clearSt
 void (*Logic::_MonsterActor_ForceRemoveImmediatelly)(Il2CppObject *) = nullptr;
 void Logic::MonsterActor_ForceRemoveImmediatelly(Il2CppObject *self)
 {
-    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x168);
+    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x78);
 
     if (GetStateOrValue("暂停接口", "食堂泼辣酱(R)", false))
     {
@@ -560,7 +577,7 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
         // LOGE("///AddDynamic: key[%s] Dv[%3.3f] value[%3.3f] min[%3.3f] max[%3.3f]", css.c_str(), *Dvalue, value, min, max);
 
         Il2CppObject *_owner = *(Il2CppObject **)((char *)self + 0xC);
-        Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)_owner + 0x298);
+        Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)_owner + 0x1A8);
         Il2CppClass *clazz = baseMonoActor->klass;
 
         // int count = 0;
@@ -570,12 +587,13 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
             // LOGE("(%d)class name: [%s]", ++count, clazz->name);
             if (String(clazz->name) == "BaseMonoAvatar")
             {
-                if (css.get() == "_GLOBAL_DQ_FROST_VALUE")
+                if (css.get() == "_GLOBAL_DQ_FROST_VALUE" || css.get() == "_GLOBAL_HONKAI_VALUE")
                 {
                     value = min;
                     break;
                 }
 
+                // LOGE(">>>> %s", css.c_str());
                 if (value < 0) //减值
                     value *= GetStateOrValue("角色动能", "减值倍率", 1.0f);
                 else if (value > 0) //增值
@@ -607,7 +625,7 @@ void Logic::AbilityShieldMixin_OnShieldChanged(Il2CppObject *self, float from, f
     {
         float differ = from - to;
         if (differ > 0.0f) //减少
-            differ *= std::max<float>(GetStateOrValue("破甲", "减值倍率", 1.0f), 1.0f) - 1.0f;
+            differ *= std::max<float>(GetStateOrValue("破甲", "减值倍率", 2.0f), 2.0f) - 1.0f;
         *shield = to = std::max<float>(from - differ, 0.0f);
 
         float new_timespan = GetStateOrValue("破甲", "盾恢复时间", 0.0f);
@@ -640,8 +658,8 @@ bool Logic::MonsterActor_OnBeingHitResolve(Il2CppObject *self, Il2CppObject *evt
 {
     bool result = _MonsterActor_OnBeingHitResolve(self, evt);
 
-    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x148);
-    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x168);
+    Il2CppObject *maxHP = (Il2CppObject *)((char *)self + 0x58);
+    Il2CppObject *HP = (Il2CppObject *)((char *)self + 0x78);
 
     Il2CppObject *attackData = *(Il2CppObject **)((char *)evt + 0x30);
 
@@ -682,7 +700,7 @@ float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *se
 {
     float result = _DamageModelLogic_GetNatureDamageBonusRatio(self, attackerNature, attackeeNature, attackee);
 
-    // Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)attackee + 0x298);
+    // Il2CppObject *baseMonoActor = *(Il2CppObject **)((char *)attackee + 0x1A8);
     // Il2CppClass *clazz = baseMonoActor->klass;
 
     // int count = 0;

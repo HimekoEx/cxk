@@ -106,6 +106,10 @@ namespace Hook
             float BaseAbilityActor_GetProperty(Il2cpp::Il2CppObject *self, Il2cpp::Il2CppString *propertyKey);
             extern float (*_BaseAbilityActor_GetProperty)(Il2cpp::Il2CppObject *, Il2cpp::Il2CppString *);
 
+            // 关卡设计管理$$核心
+            void LevelDesignManager_Core(Il2cpp::Il2CppObject *self);
+            extern void (*_LevelDesignManager_Core)(Il2cpp::Il2CppObject *);
+
             // 关卡设计管理$$设置暂停
             void LevelDesignManager_SetPause(Il2cpp::Il2CppObject *self, bool pause);
             extern void (*_LevelDesignManager_SetPause)(Il2cpp::Il2CppObject *, bool);
@@ -119,8 +123,8 @@ namespace Hook
             extern void (*_AvatarActor_SetAvatarDefenseRatio)(Il2cpp::Il2CppObject *, float);
 
             // 关卡设计管理$$击杀所有怪物Iter
-            void LevelDesignManager_KillAllMonstersIter(Il2cpp::Il2CppObject *self, bool dropReward, bool killStatic, bool killUnacitve);
-            extern void (*_LevelDesignManager_KillAllMonstersIter)(Il2cpp::Il2CppObject *, bool, bool, bool);
+            void LevelDesignManager_KillAllMonstersIter(Il2cpp::Il2CppObject *self, bool dropReward, bool killStatic, bool killUnacitve, bool isKilledByLocalAvatar);
+            extern void (*_LevelDesignManager_KillAllMonstersIter)(Il2cpp::Il2CppObject *, bool, bool, bool, bool);
 
             // 关卡设计管理$$清除所有怪物
             void LevelDesignManager_ClearAllMonsters(Il2cpp::Il2CppObject *self, bool clearStatic);

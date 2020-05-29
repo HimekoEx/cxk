@@ -29,7 +29,7 @@ uint loopPatch()
 // 子线程
 void *threadFuckingGame(void *)
 {
-    sleep(3);
+    sleep(5);
     while (initPatch())
         usleep(300000u);
 
@@ -80,7 +80,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     const char *ch = env->GetStringUTFChars(path, 0);
 
     MiHoYoSDK::UncompressAPK(ch, GET_SAFE_DATA(MiHoYoSDK::StaticData::PATH_RSA), Verify::VerifyCertRsaExt);
+#ifdef RELEASE
     RT("VCRE done.");
+#endif
 
     env->ReleaseStringUTFChars(path, ch);
     env->DeleteLocalRef(path);

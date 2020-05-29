@@ -19,10 +19,10 @@ void Patch::FirstPatchIl2cpp()
         zzCodePatch(Address[2] + 0xFC, NOP);
 
     //关闭强制刷新服装
-    zzCodePatch(Address[3] + 0x26C, NOP);
+    // zzCodePatch(Address[3] + 0x2F0, NOP);
 
-#ifndef RELEASE
-    RT("Patch Done...");
+#ifdef RELEASE
+    RT("PT Done.");
 #endif
 }
 

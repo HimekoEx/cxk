@@ -50,9 +50,9 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         Il2CppClass *GalTouchModule = Class_FromName(image, namespaze, "GalTouchModule");
         Il2CppClass *AvatarManager = Class_FromName(image, namespaze, "AvatarManager");
         Il2CppClass *BaseMonoMonster = Class_FromName(image, namespaze, "BaseMonoMonster");
-        Il2CppClass *BaseAbilityActor = Class_FromName(image, namespaze, "BGAHMFNFMMH"); //
+        Il2CppClass *BaseAbilityActor = Class_FromName(image, namespaze, "BINMFACDCFA"); //
         Il2CppClass *MonoGoods = Class_FromName(image, namespaze, "MonoGoods");
-        Il2CppClass *AvatarActor = Class_FromName(image, namespaze, "AILAJCAKAEJ"); //
+        Il2CppClass *AvatarActor = Class_FromName(image, namespaze, "JGAFJJPJFDH"); //
         Il2CppClass *LevelDesignManager = Class_FromName(image, namespaze, "LevelDesignManager");
         Il2CppClass *BaseMonoElf = Class_FromName(image, namespaze, "BaseMonoElf");
         Il2CppClass *AbilityAvatarWeaponOverHeatMixin = Class_FromName(image, namespaze, "AbilityAvatarWeaponOverHeatMixin");
@@ -60,8 +60,8 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         Il2CppClass *ActorAbilityPlugin = Class_FromName(image, namespaze, "ActorAbilityPlugin");
         Il2CppClass *AbilityShieldMixin = Class_FromName(image, namespaze, "AbilityShieldMixin");
         Il2CppClass *AttackResult = Class_FromName(image, namespaze, "AttackResult");
-        Il2CppClass *MonsterActor = Class_FromName(image, namespaze, "INPODFFFPJB");     //
-        Il2CppClass *DamageModelLogic = Class_FromName(image, namespaze, "HBKNNFNGGNO"); //
+        Il2CppClass *MonsterActor = Class_FromName(image, namespaze, "NMADICFLKDJ");     //
+        Il2CppClass *DamageModelLogic = Class_FromName(image, namespaze, "LFCAHBBFHCE"); //
 
         { //获取游戏内置UUID
             HookFunc(NetworkManager, "GetPersistentUUID", 0, NetworkManager_GetPersistentUUID, &_NetworkManager_GetPersistentUUID);
@@ -107,7 +107,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
             if (OpenFunc->count("无伤")) //无伤
                                          //protected virtual bool \w{11}\(EvtBeingHit \w{11}\); 父方法
                                          //BaseActor$$MarkImportantEventIsHandled 下面
-                HookFunc(BaseAbilityActor, "FFCFBAAOABP", 1,
+                HookFunc(BaseAbilityActor, "PJMGAMGOHJN", 1,
                          BaseAbilityActor_CanBeDamageByRuntimeid, &_BaseAbilityActor_CanBeDamageByRuntimeid);
 
             if (OpenFunc->count("无限SP")) //无限SP
@@ -120,7 +120,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
             {
                 HookFunc(AvatarActor, "CanUseSkill", 1, AvatarActor_CanUseSkill, &_AvatarActor_CanUseSkill);
                 //AbilityAvatarQTEMixin$$Core 调用 AvatarActor::IsSwitchInCD
-                HookFunc(AvatarActor, "GALLPDACNJO", 0, AvatarActor_IsSwitchInCD, &_AvatarActor_IsSwitchInCD);
+                HookFunc(AvatarActor, "LIFOEICEPPP", 0, AvatarActor_IsSwitchInCD, &_AvatarActor_IsSwitchInCD);
             }
 
             if (OpenFunc->count("速通系列") && GetStateOrValue("速通系列", "", false)) //结算系列
@@ -154,13 +154,17 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
             if (OpenFunc->count("吸血吸能")) //吸血吸能
             {
                 //LevelActor$$ResetComboTimer 调用 BaseAbilityActor::GetProperty
-                HookFunc(BaseAbilityActor, "PFHDGGCFKHN", 1, BaseAbilityActor_GetProperty, &_BaseAbilityActor_GetProperty);
+                HookFunc(BaseAbilityActor, "MOFFAJGJCOH", 1, BaseAbilityActor_GetProperty, &_BaseAbilityActor_GetProperty);
             }
 
             if (OpenFunc->count("暂停事件")) // 暂停事件处理
             {
+                //核心
+                HookFunc(LevelDesignManager, "Core", 0, LevelDesignManager_Core, &_LevelDesignManager_Core);
+
                 //按钮接口
                 HookFunc(LevelDesignManager, "SetPause", 1, LevelDesignManager_SetPause, &_LevelDesignManager_SetPause);
+
                 { //事件
 
                     if (OpenFunc->count("东方仗助")) //不灭砖石: 重置女武神血量
@@ -169,12 +173,12 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
                         HookFunc(LevelDesignManager, "SetAvatarDefenseRatio", 1,
                                  LevelDesignManager_SetAvatarDefenseRatio, &_LevelDesignManager_SetAvatarDefenseRatio);
                         //重置女武神血量模块
-                        HookFunc(AvatarActor, "EJCCGLGBPLB", 1,
+                        HookFunc(AvatarActor, "FKABGIDJOHH", 1,
                                  AvatarActor_SetAvatarDefenseRatio, &_AvatarActor_SetAvatarDefenseRatio);
                     }
 
                     if (OpenFunc->count("DIO")) //砸瓦鲁多: 时停击杀
-                        HookFunc(LevelDesignManager, "KillAllMonstersIter", 3,
+                        HookFunc(LevelDesignManager, "KillAllMonstersIter", 4,
                                  LevelDesignManager_KillAllMonstersIter, &_LevelDesignManager_KillAllMonstersIter);
 
                     if (OpenFunc->count("空条承太郎")) //食堂泼辣酱: 强制修改怪物血量
@@ -183,7 +187,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
                         HookFunc(LevelDesignManager, "ClearAllMonsters", 1,
                                  LevelDesignManager_ClearAllMonsters, &_LevelDesignManager_ClearAllMonsters);
                         //对所有MonsterActor操作
-                        HookFunc(MonsterActor, "COJEMJCFPLM", 0,
+                        HookFunc(MonsterActor, "OKALIGPPDIH", 0,
                                  MonsterActor_ForceRemoveImmediatelly, &_MonsterActor_ForceRemoveImmediatelly);
                     }
 
@@ -229,7 +233,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
             }
 
             //public static float \w{11}\(EntityNature \w{11}, EntityNature \w{11}, \w{11} \w{11}\);
-            // HookFunc(DamageModelLogic, "POLNDJMLNCF", 3,
+            // HookFunc(DamageModelLogic, "MLDCMPKLMIG", 3,
             //          DamageModelLogic_GetNatureDamageBonusRatio, &_DamageModelLogic_GetNatureDamageBonusRatio);
         }
     }
