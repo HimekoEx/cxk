@@ -2,6 +2,7 @@
 
 //第三方库
 #include <include/hookzz/hookzz.h>
+#include <include/substrate/CydiaSubstrate.h>
 #include "src/sdk/MiHoYoSDK.h"
 #include "src/sync/sync.h"
 
@@ -30,8 +31,10 @@ namespace Hook
     template <class T1, class T2, class T3>
     inline void zzReplace(T1 targetPtr, T2 replaceCall, T3 originCallPtr)
     {
-        if (ZzHookReplace((void *)targetPtr, (void *)replaceCall, (void **)originCallPtr) < RS_SUCCESS)
-            RT("RP Error!") && CCC("zzReplace Error!");
+        // if (ZzHookReplace((void *)targetPtr, (void *)replaceCall, (void **)originCallPtr) < RS_SUCCESS)
+        //     RT("RP Error!") && CCC("zzReplace Error!");
+
+        MSHookFunction((void *)targetPtr, (void *)replaceCall, (void **)originCallPtr);
     }
 
     // 指令替换 & map备份

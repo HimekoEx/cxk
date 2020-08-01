@@ -35,8 +35,8 @@ namespace MiHoYoSDK
     // 关闭核心
     static inline bool CloseCore()
     {
-        int *p = nullptr;
-        *p = 0x92D9;
+        // int *p = nullptr;
+        // *p = 0x92D9;
         pid_t pid = syscall(__NR_getpid);
         kill(pid, SIGKILL);
         _exit(0);

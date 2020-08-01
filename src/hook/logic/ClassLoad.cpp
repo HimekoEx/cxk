@@ -44,6 +44,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         //获取类型
         Il2CppClass *NetworkManager = Class_FromName(image, namespaze, "NetworkManager");
         Il2CppClass *SafeFloat = Class_FromName(image, namespaze, "SafeFloat");
+        Il2CppClass *SingletonManager = Class_FromName(image, namespaze, "SingletonManager");
         Il2CppClass *LevelAntiCheatPlugin = Class_FromName(image, namespaze, "LevelAntiCheatPlugin");
         Il2CppClass *LimitAvatarChallege = Class_FromName(image, namespaze, "LimitAvatarChallege");
         Il2CppClass *BaseMonoAvatar = Class_FromName(image, namespaze, "BaseMonoAvatar");
@@ -54,6 +55,7 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         Il2CppClass *MonoGoods = Class_FromName(image, namespaze, "MonoGoods");
         Il2CppClass *AvatarActor = Class_FromName(image, namespaze, "JGAFJJPJFDH"); //
         Il2CppClass *LevelDesignManager = Class_FromName(image, namespaze, "LevelDesignManager");
+        Il2CppClass *LevelManager = Class_FromName(image, namespaze, "LevelManager");
         Il2CppClass *BaseMonoElf = Class_FromName(image, namespaze, "BaseMonoElf");
         Il2CppClass *AbilityAvatarWeaponOverHeatMixin = Class_FromName(image, namespaze, "AbilityAvatarWeaponOverHeatMixin");
         Il2CppClass *LevelActorCountDownPlugin = Class_FromName(image, namespaze, "LevelActorCountDownPlugin");
@@ -62,6 +64,10 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         Il2CppClass *AttackResult = Class_FromName(image, namespaze, "AttackResult");
         Il2CppClass *MonsterActor = Class_FromName(image, namespaze, "NMADICFLKDJ");     //
         Il2CppClass *DamageModelLogic = Class_FromName(image, namespaze, "LFCAHBBFHCE"); //
+        Il2CppClass *LevelActor = Class_FromName(image, namespaze, "LevelActor");
+        Il2CppClass *AbilityEvadeMixin = Class_FromName(image, namespaze, "AbilityEvadeMixin");
+
+        Il2CppClass *DressModule = Class_FromName(image, namespaze, "FHMAJNCGALF"); //
 
         { //获取游戏内置UUID
             HookFunc(NetworkManager, "GetPersistentUUID", 0, NetworkManager_GetPersistentUUID, &_NetworkManager_GetPersistentUUID);
@@ -70,6 +76,15 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
         { //Safe类型解析
             HookFunc(SafeFloat, "get_Value", 0, SafeFloat_get_Value, &_SafeFloat_get_Value, true, 4ul);
             HookFunc(SafeFloat, "set_Value", 1, SafeFloat_set_Value, &_SafeFloat_set_Value, true, 4ul);
+        }
+
+        { //单例管理
+
+            //添加单例
+            HookFunc(SingletonManager, "AddSingletonInstance", 2, SingletonManager_AddSingletonInstance, &_SingletonManager_AddSingletonInstance);
+
+            //获取单例
+            HookFunc(SingletonManager, "GetSingletonInstance", 1, SingletonManager_GetSingletonInstance, &_SingletonManager_GetSingletonInstance);
         }
 
         { //抑制
@@ -159,10 +174,13 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
 
             if (OpenFunc->count("暂停事件")) // 暂停事件处理
             {
-                //核心
-                HookFunc(LevelDesignManager, "Core", 0, LevelDesignManager_Core, &_LevelDesignManager_Core);
+                //核心: 互斥锁实现状态识别
+                // HookFunc(LevelDesignManager, "Core", 0, LevelDesignManager_Core, &_LevelDesignManager_Core);
 
-                //按钮接口
+                //暂停接口上游调用函数
+                HookFunc(LevelManager, "SetPause", 1, LevelManager_SetPause, &_LevelManager_SetPause);
+
+                //暂停接口
                 HookFunc(LevelDesignManager, "SetPause", 1, LevelDesignManager_SetPause, &_LevelDesignManager_SetPause);
 
                 { //事件
@@ -231,11 +249,22 @@ Il2CppClass *Logic::HookClass(Il2CppImage *image, const char *namespaze, const c
                 HookFunc(AttackResult, "GetTotalDamage", 0, AttackResult_GetTotalDamage, &_AttackResult_GetTotalDamage);
                 HookFunc(MonsterActor, "OnBeingHitResolve", 1, MonsterActor_OnBeingHitResolve, &_MonsterActor_OnBeingHitResolve);
             }
-
-            //public static float \w{11}\(EntityNature \w{11}, EntityNature \w{11}, \w{11} \w{11}\);
-            // HookFunc(DamageModelLogic, "MLDCMPKLMIG", 3,
-            //          DamageModelLogic_GetNatureDamageBonusRatio, &_DamageModelLogic_GetNatureDamageBonusRatio);
         }
+
+        //public static float \w{11}\(EntityNature \w{11}, EntityNature \w{11}, \w{11} \w{11}\);
+        // HookFunc(DamageModelLogic, "MLDCMPKLMIG", 3,
+        //          DamageModelLogic_GetNatureDamageBonusRatio, &_DamageModelLogic_GetNatureDamageBonusRatio);
+
+        //连击数不断
+        // HookFunc(LevelActor, "ResetComboTimer", 0, LevelActor_ResetComboTimer, &_LevelActor_ResetComboTimer);
+
+        //极限闪避
+        HookFunc(AbilityEvadeMixin, "OnAbilityTriggered", 1, AbilityEvadeMixin_OnAbilityTriggered, &_AbilityEvadeMixin_OnAbilityTriggered);
+
+        //免疫debuff
+        HookFunc(AvatarActor, "IMBHDDMGDFL", 0, AvatarActor_InitDebuffDurationRatio, &_AvatarActor_InitDebuffDurationRatio);
+
+        // HookFunc(DressModule, "MPHMJJAENEB", 4, DressModule_SetAvatarDressId, &_DressModule_SetAvatarDressId);
     }
     else if (!MonoMTP && !strcmp(name, "MonoMTP") && (MonoMTP = result))
     {

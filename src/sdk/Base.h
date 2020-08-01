@@ -16,6 +16,7 @@
 //类型定义
 typedef unsigned long ulong;
 typedef unsigned int uint;
+typedef unsigned short ushort;
 typedef unsigned char uchar;
 
 //logcat
@@ -29,5 +30,5 @@ typedef unsigned char uchar;
 #define BoolToChar(value) (value ? "true" : "false")
 
 //快速转std::string类型
-#define ToString(data) std::to_string(data)
-#define String(data) std::string(data)
+#define ToString(data) (std::to_string(data))
+#define String(data) (std::string(data))

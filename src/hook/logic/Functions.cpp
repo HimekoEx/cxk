@@ -7,7 +7,7 @@ using namespace Hook::Loaded;
 using namespace Hook::Loaded::Il2cpp;
 using Sync::GetStateOrValue;
 
-static bool GUID_LOCK = false;
+// static bool GUID_LOCK = false;
 static bool PAUSE_LOCK = true;
 
 //网络管理器$$获取持久UUID
@@ -15,21 +15,21 @@ Il2CppString *(*Logic::_NetworkManager_GetPersistentUUID)(Il2CppObject *) = null
 Il2CppString *Logic::NetworkManager_GetPersistentUUID(Il2CppObject *self)
 {
     Il2CppString *result = _NetworkManager_GetPersistentUUID(self);
-    if (!GUID_LOCK && (GUID_LOCK = true))
-    {
-        CSharpString css = result;
-        LOGE("GetPersistentUUID: [%s]", css.c_str());
+    // if (!GUID_LOCK && (GUID_LOCK = true))
+    // {
+    //     CSharpString css = result;
+    //     LOGE("GetPersistentUUID: [%s]", css.c_str());
 
-        Json::Value root;
-        root[GET_SAFE_DATA(STR_guid)] = css.get();
-        root[GET_SAFE_DATA(STR_chaos)] = Verify::GetChaosMD5().get();
-        root[GET_SAFE_DATA(STR_cybl)] = Verify::GetCyBLMD5().get();
-        root[GET_SAFE_DATA(STR_apk)] = Verify::GetAPKMD5().get();
+    //     Json::Value root;
+    //     root[GET_SAFE_DATA(STR_guid)] = css.get();
+    //     root[GET_SAFE_DATA(STR_chaos)] = Verify::GetChaosMD5().get();
+    //     root[GET_SAFE_DATA(STR_cybl)] = Verify::GetCyBLMD5().get();
+    //     root[GET_SAFE_DATA(STR_apk)] = Verify::GetAPKMD5().get();
 
-        Bytes raw = SendJSON(GET_SAFE_CHAR(STR_gameLogin), root);
-        if (Verify::VerifyFileByJson(raw))
-            RT("VFB Error") && CCC("VerifyFileByJson Error");
-    }
+    //     Bytes raw = SendJSON(GET_SAFE_CHAR(STR_gameLogin), root);
+    //     if (Verify::VerifyFileByJson(raw))
+    //         RT("VFB Error") && CCC("VerifyFileByJson Error");
+    // }
 
     return result;
 }
@@ -57,6 +57,21 @@ void (*Logic::_SafeFloat_set_Value)(Il2CppObject *, float) = nullptr;
 void Logic::SafeFloat_set_Value(Il2CppObject *self, float value)
 {
     return _SafeFloat_set_Value(self, value);
+}
+
+//单例管理$$添加单例
+void (*Logic::_SingletonManager_AddSingletonInstance)(Il2CppObject *, Il2CppObject *, Il2CppString *) = nullptr;
+void Logic::SingletonManager_AddSingletonInstance(Il2CppObject *self, Il2CppObject *singleton, Il2CppString *typeName)
+{
+    // LOGE("[+]Singleton: {%s}", CSharpString(typeName).c_str());
+    return _SingletonManager_AddSingletonInstance(self, singleton, typeName);
+}
+
+//单例管理$$获取单例
+Il2CppObject *(*Logic::_SingletonManager_GetSingletonInstance)(Il2CppObject *, Il2CppString *) = nullptr;
+Il2CppObject *Logic::SingletonManager_GetSingletonInstance(Il2CppObject *self, Il2CppString *typeName)
+{
+    return _SingletonManager_GetSingletonInstance(self, typeName);
 }
 
 //关卡反作弊插件&&收集反作弊数据
@@ -159,14 +174,14 @@ bool Logic::BaseAbilityActor_CanBeDamageByRuntimeid(Il2CppObject *self, uint run
 
     for (; clazz != nullptr; clazz = clazz->parent)
     {
-        if (String(clazz->name) == "BaseMonoAvatar")
+        if (String(clazz->name) == Noun::Clazz_BaseMonoAvatar)
         {
             if (GetStateOrValue("无伤", "", false))
                 return false;
 
             break;
         }
-        else if (String(clazz->name) == "BaseMonoEntity")
+        else if (String(clazz->name) == Noun::Clazz_BaseMonoEntity)
             break;
     }
 
@@ -185,14 +200,14 @@ void Logic::BaseAbilityActor_HealSP(Il2CppObject *self, float amount, LevelSPRec
 
     for (; clazz != nullptr; clazz = clazz->parent)
     {
-        if (String(clazz->name) == "BaseMonoAvatar")
+        if (String(clazz->name) == Noun::Clazz_BaseMonoAvatar)
         {
             if (GetStateOrValue("无限SP", "", false))
                 SafeFloat_set_Value(SP, SafeFloat_get_Value(maxSP));
 
             break;
         }
-        else if (String(clazz->name) == "BaseMonoEntity")
+        else if (String(clazz->name) == Noun::Clazz_BaseMonoEntity)
             break;
     }
 
@@ -320,9 +335,9 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
     {
         for (; clazz != nullptr; clazz = clazz->parent)
         {
-            if (String(clazz->name) == "BaseMonoAvatar")
+            if (String(clazz->name) == Noun::Clazz_BaseMonoAvatar)
             {
-                if (GetStateOrValue("吸血吸能", "SP吸取", false) && css.get() == "Actor_SPRecoverRatio")
+                if (GetStateOrValue("吸血吸能", "SP吸取", false) && css.get() == Noun::Actor_SPRecoverRatio)
                 {
                     float sp = SafeFloat_get_Value(SP);
                     float max = SafeFloat_get_Value(maxSP);
@@ -334,7 +349,7 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
                     else
                         result = GetStateOrValue("吸血吸能", "SP(高)吸收率", 0.0f);
                 }
-                else if (GetStateOrValue("吸血吸能", "HP吸取", false) && css.get() == "Actor_AttackStealHPRatio")
+                else if (GetStateOrValue("吸血吸能", "HP吸取", false) && css.get() == Noun::Actor_AttackStealHPRatio)
                 {
                     float hp = SafeFloat_get_Value(HP);
                     float max = SafeFloat_get_Value(maxHP);
@@ -349,7 +364,7 @@ float Logic::BaseAbilityActor_GetProperty(Il2CppObject *self, Il2CppString *prop
 
                 break;
             }
-            else if (String(clazz->name) == "BaseMonoEntity")
+            else if (String(clazz->name) == Noun::Clazz_BaseMonoEntity)
                 break;
         }
     }
@@ -373,6 +388,18 @@ void Logic::LevelDesignManager_Core(Il2cpp::Il2CppObject *self)
     return _LevelDesignManager_Core(self);
 }
 
+// 关卡管理$$设置暂停
+void (*Logic::_LevelManager_SetPause)(Il2CppObject *, bool) = nullptr;
+void Logic::LevelManager_SetPause(Il2CppObject *self, bool pause)
+{
+    Il2CppObject *LevelDesignManager = SingletonManager_GetSingletonInstance(nullptr, String_New("MoleMole.LevelDesignManager"));
+
+    if (LevelDesignManager != nullptr)
+        LevelDesignManager_SetPause(LevelDesignManager, pause);
+
+    return _LevelManager_SetPause(self, pause);
+}
+
 //关卡设计管理$$设置暂停
 void (*Logic::_LevelDesignManager_SetPause)(Il2CppObject *, bool) = nullptr;
 void Logic::LevelDesignManager_SetPause(Il2CppObject *self, bool pause)
@@ -393,8 +420,25 @@ void Logic::LevelDesignManager_SetPause(Il2CppObject *self, bool pause)
             LevelDesignManager_SetInLevelTimeCountDownSpeedRatio(self, 1.0f, 1.0f);
     }
 
-    PAUSE_LOCK = false;
-    // return _LevelDesignManager_SetPause(self, pause);
+    // PAUSE_LOCK = false;
+
+    // if (GetStateOrValue("暂停接口", "", false))
+    // {
+    //     LOGE("SetPauseCall: %s", BoolToChar(pause));
+    //     if (GetStateOrValue("暂停接口", "不灭钻石(H)", false) ||
+    //         GetStateOrValue("暂停接口", "不灭钻石(S)", false) ||
+    //         GetStateOrValue("暂停接口", "不灭钻石(H/S)", false))
+    //         LevelDesignManager_SetAvatarDefenseRatio(self, 1.0f);
+    //     else if (GetStateOrValue("暂停接口", "砸瓦鲁多", false))
+    //         LevelDesignManager_KillAllMonstersIter(self, true, true, true, false);
+    //     else if (GetStateOrValue("暂停接口", "食堂泼辣酱(R)", false) ||
+    //              GetStateOrValue("暂停接口", "食堂泼辣酱(V)", false))
+    //         LevelDesignManager_ClearAllMonsters(self, true);
+    //     else if (GetStateOrValue("暂停接口", "绯红之王", false))
+    //         LevelDesignManager_SetInLevelTimeCountDownSpeedRatio(self, 1.0f, 1.0f);
+    // }
+
+    return _LevelDesignManager_SetPause(self, pause);
 }
 
 //关卡设计管理$$设置女武神防御倍率
@@ -406,7 +450,7 @@ void Logic::LevelDesignManager_SetAvatarDefenseRatio(Il2CppObject *self, float r
 
 //女武神角色$$设置女武神防御倍率
 void (*Logic::_AvatarActor_SetAvatarDefenseRatio)(Il2CppObject *, float) = nullptr;
-void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio) //TODO: 未验证ratio值
+void Logic::AvatarActor_SetAvatarDefenseRatio(Il2CppObject *self, float ratio)
 {
     Il2CppObject *maxSP = (Il2CppObject *)((char *)self + 0x68);
     Il2CppObject *SP = (Il2CppObject *)((char *)self + 0x88);
@@ -449,8 +493,6 @@ void (*Logic::_LevelDesignManager_KillAllMonstersIter)(Il2CppObject *, bool, boo
 void Logic::LevelDesignManager_KillAllMonstersIter(
     Il2CppObject *self, bool dropReward, bool killStatic, bool killUnacitve, bool isKilledByLocalAvatar)
 {
-    LOGE("ko no DIO da!");
-
     return _LevelDesignManager_KillAllMonstersIter(self, dropReward, killStatic, killUnacitve, isKilledByLocalAvatar);
 }
 
@@ -585,9 +627,9 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
         for (; clazz != nullptr; clazz = clazz->parent)
         {
             // LOGE("(%d)class name: [%s]", ++count, clazz->name);
-            if (String(clazz->name) == "BaseMonoAvatar")
+            if (String(clazz->name) == Noun::Clazz_BaseMonoAvatar)
             {
-                if (css.get() == "_GLOBAL_DQ_FROST_VALUE" || css.get() == "_GLOBAL_HONKAI_VALUE")
+                if (css.get() == Noun::GLOBAL_DQ_FROST || css.get() == Noun::GLOBAL_HONKAI_VALUE || css.get() == Noun::GLOBAL_FROZEN_POINT)
                 {
                     value = min;
                     break;
@@ -599,10 +641,11 @@ void Logic::ActorAbilityPlugin_AddDynamicFloatWithRange(Il2CppObject *self, Il2C
                 else if (value > 0) //增值
                     value *= GetStateOrValue("角色动能", "增值倍率", 1.0f);
 
-                // LOGE("\\\\\\AddDynamic: key[%s] Dv[%3.3f] value[%3.3f] min[%3.3f] max[%3.3f]", css.c_str(), *Dvalue, value, min, max);
+                // LOGE("\\\\\\AddDynamic: key[%s] Dv[%3.3f] value[%3.3f] min[%3.3f] max[%3.3f]",
+                //      css.c_str(), *Dvalue, value, min, max);
                 break;
             }
-            else if (String(clazz->name) == "BaseMonoEntity")
+            else if (String(clazz->name) == Noun::Clazz_BaseMonoEntity)
                 break;
         }
         // LOGE("///END///");
@@ -625,7 +668,7 @@ void Logic::AbilityShieldMixin_OnShieldChanged(Il2CppObject *self, float from, f
     {
         float differ = from - to;
         if (differ > 0.0f) //减少
-            differ *= std::max<float>(GetStateOrValue("破甲", "减值倍率", 2.0f), 2.0f) - 1.0f;
+            differ += differ * (std::max<float>(GetStateOrValue("破甲", "减值倍率", 1.0f), 1.0f) - 1.0f);
         *shield = to = std::max<float>(from - differ, 0.0f);
 
         float new_timespan = GetStateOrValue("破甲", "盾恢复时间", 0.0f);
@@ -694,9 +737,9 @@ bool Logic::MonsterActor_OnBeingHitResolve(Il2CppObject *self, Il2CppObject *evt
     return result;
 }
 
-// 伤害模型逻辑$$获取本质伤害加成倍率
-float (*Logic::_DamageModelLogic_GetNatureDamageBonusRatio)(Il2cpp::Il2CppObject *, EntityNature, EntityNature, Il2cpp::Il2CppObject *) = nullptr;
-float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *self, EntityNature attackerNature, EntityNature attackeeNature, Il2cpp::Il2CppObject *attackee)
+//伤害模型逻辑$$获取本质伤害加成倍率
+float (*Logic::_DamageModelLogic_GetNatureDamageBonusRatio)(Il2CppObject *, EntityNature, EntityNature, Il2CppObject *) = nullptr;
+float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2CppObject *self, EntityNature attackerNature, EntityNature attackeeNature, Il2CppObject *attackee)
 {
     float result = _DamageModelLogic_GetNatureDamageBonusRatio(self, attackerNature, attackeeNature, attackee);
 
@@ -708,11 +751,11 @@ float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *se
     // for (; clazz != nullptr; clazz = clazz->parent)
     // {
     //     LOGE("(%d)class name: [%s]", ++count, clazz->name);
-    //     if (String(clazz->name) == "BaseMonoAvatar")
+    //     if (String(clazz->name) == Noun::MonoAvatar)
     //     {
     //         break;
     //     }
-    //     else if (String(clazz->name) == "BaseMonoEntity")
+    //     else if (String(clazz->name) == Noun::MonoEntity)
     //         break;
     // }
     LOGE("GetNatureDamageBonusRatio: %s, %s, %0.3f",
@@ -722,4 +765,52 @@ float Logic::DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *se
     // LOGE("///END///");
 
     return result;
+}
+
+//关卡演员$$重置连击计时器
+void (*Logic::_LevelActor_ResetComboTimer)(Il2CppObject *) = nullptr;
+void Logic::LevelActor_ResetComboTimer(Il2CppObject *self)
+{
+    LOGE("LevelActor_ResetComboTimer call");
+    return;
+}
+
+//闪避能力插件$$在能力触发
+void (*Logic::_AbilityEvadeMixin_OnAbilityTriggered)(Il2CppObject *, Il2CppObject *) = nullptr;
+void Logic::AbilityEvadeMixin_OnAbilityTriggered(Il2CppObject *self, Il2CppObject *evt)
+{
+    Il2CppObject *actor = *(Il2CppObject **)((char *)self + 0x8);
+    AbilityState *abilityState = (AbilityState *)((char *)actor + 0x158);
+
+    if (GetStateOrValue("极限闪避", "", false))
+    {
+        if (*abilityState != AbilityState::EvadeSuccess)
+            *abilityState = AbilityState::EvadeSuccess;
+    }
+
+    return _AbilityEvadeMixin_OnAbilityTriggered(self, evt);
+}
+
+//女武神角色$$初始化Debuff持续时间倍率
+void (*Logic::_AvatarActor_InitDebuffDurationRatio)(Il2CppObject *) = nullptr;
+void Logic::AvatarActor_InitDebuffDurationRatio(Il2CppObject *self)
+{
+    Il2CppObject *config = *(Il2CppObject **)((char *)self + 0x1C0);
+    Il2CppObject *DebuffResistance = *(Il2CppObject **)((char *)config + 0x68);
+    float *DurationRatio = (float *)((char *)DebuffResistance + 0x10);
+
+    LOGE("DurationRatio: %0.3f", *DurationRatio);
+    *DurationRatio = 1.0f;
+
+    return _AvatarActor_InitDebuffDurationRatio(self);
+}
+
+//服装模块$$设置女武神服装ID
+bool (*Logic::_DressModule_SetAvatarDressId)(Il2CppObject *, int, int, bool, bool) = nullptr;
+bool Logic::DressModule_SetAvatarDressId(Il2CppObject *self, int avatarId, int dressId, bool forceSendReq, bool forceNotSendReq)
+{
+    LOGE("SetAvatarDressId {avatarId: %d, dressId: %d, forceSendReq: %s, forceNotSendReq: %s}",
+         avatarId, dressId, BoolToChar(forceSendReq), BoolToChar(forceNotSendReq));
+
+    return _DressModule_SetAvatarDressId(self, avatarId, dressId, forceSendReq, forceNotSendReq);
 }

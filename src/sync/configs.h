@@ -59,7 +59,7 @@ namespace Sync
             }
         }
 
-        // LOGE("%s.%s not find!", key.c_str(), subKey.c_str());
+        // LOGE("%s::%s not find!", key.c_str(), subKey.c_str());
         return defVale;
     }
 

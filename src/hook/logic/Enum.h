@@ -252,6 +252,44 @@ namespace Hook
                 Paused = 3,  //暂停
             };
 
+            // 能力状态
+            enum class AbilityState
+            {
+                None = 0,
+                Invincible = 1,
+                Limbo = 2,
+                WitchTimeSlowed = 4,
+                Bleed = 8,
+                Stun = 16,
+                Paralyze = 32,
+                Burn = 64,
+                Poisoned = 128,
+                Frozen = 256,
+                MoveSpeedDown = 512,
+                AttackSpeedDown = 1024,
+                Weak = 2048,
+                Fragile = 4096,
+                Endure = 8192,
+                MoveSpeedUp = 16384,
+                AttackSpeedUp = 32768,
+                PowerUp = 65536,
+                Shielded = 131072,
+                CritUp = 262144,
+                Immune = 524288,
+                MaxMoveSpeed = 1048576,
+                TargetLocked = 2097152,
+                Tied = 4194304,
+                BlockAnimEventAttack = 8388608,
+                Undamagable = 16777216,
+                ReflectBullet = 33554432,
+                SlowWhenFrozenOrParalyze = 67108864,
+                UtilityState = 134217728,
+                Chaos = 268435456,
+                Invisible = 536870912,
+                EvadeSuccess = 1073741824,
+                Petrify = -2147483648,
+            };
+
         } // namespace Logic
     }     // namespace Loaded
 } // namespace Hook

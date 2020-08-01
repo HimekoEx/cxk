@@ -12,6 +12,18 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
+LOCAL_MODULE    := dobby
+LOCAL_SRC_FILES := $(LOCAL_PATH)/libs/libdobby.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
+LOCAL_MODULE    := substrate
+LOCAL_SRC_FILES := $(LOCAL_PATH)/libs/libsubstrate.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 LOCAL_MODULE    := jsoncpp
 LOCAL_SRC_FILES := $(LOCAL_PATH)/libs/libjsoncpp.a
 include $(PREBUILT_STATIC_LIBRARY)
@@ -73,10 +85,11 @@ LOCAL_SRC_FILES :=  $(LOCAL_PATH)/src/hack.cpp \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
-# LOCAL_CFLAGS := -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
-LOCAL_CFLAGS += -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
+LOCAL_CFLAGS := -std=c11 -mllvm -sobf -mllvm -fla -mllvm -split -mllvm -split_num=3
+LOCAL_CFLAGS := -std=c11 -Wall -O2 -U_FORTIFY_SOURCE -fstack-protector-all
+LOCAL_CPPFLAGS := -std=c++17 -fexceptions -frtti
 LOCAL_LDLIBS := -lz -llog
-LOCAL_STATIC_LIBRARIES += hookzz jsoncpp openssl-crypto openssl-ssl zip
+LOCAL_STATIC_LIBRARIES += hookzz dobby substrate jsoncpp openssl-crypto openssl-ssl zip
 include $(BUILD_SHARED_LIBRARY)
 
 ##############################End##############################

@@ -115,9 +115,9 @@ bool MiHoYoSDK::CloseJVM(std::string msg)
     else
         LOGE("CCC Error: %s", msg.c_str());
 
-    JNIEnv *env = GetJEnv();
-    env->ExceptionClear();
-    env->FatalError("");
+    // JNIEnv *env = GetJEnv();
+    // env->ExceptionClear();
+    // env->FatalError("");
     return true;
 }
 

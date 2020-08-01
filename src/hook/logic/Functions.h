@@ -29,6 +29,14 @@ namespace Hook
             void SafeFloat_set_Value(Il2cpp::Il2CppObject *self, float value);
             extern void (*_SafeFloat_set_Value)(Il2cpp::Il2CppObject *, float);
 
+            // 单例管理$$添加单例
+            void SingletonManager_AddSingletonInstance(Il2cpp::Il2CppObject *self, Il2cpp::Il2CppObject *singleton, Il2cpp::Il2CppString *typeName);
+            extern void (*_SingletonManager_AddSingletonInstance)(Il2cpp::Il2CppObject *, Il2cpp::Il2CppObject *, Il2cpp::Il2CppString *);
+
+            // 单例管理$$获取单例
+            Il2cpp::Il2CppObject *SingletonManager_GetSingletonInstance(Il2cpp::Il2CppObject *self, Il2cpp::Il2CppString *typeName);
+            extern Il2cpp::Il2CppObject *(*_SingletonManager_GetSingletonInstance)(Il2cpp::Il2CppObject *, Il2cpp::Il2CppString *);
+
             // 关卡反作弊插件&&收集反作弊数据
             void LevelAntiCheatPlugin_CollectAntiCheatData(Il2cpp::Il2CppObject *self, bool isMultiTeam);
             extern void (*_LevelAntiCheatPlugin_CollectAntiCheatData)(Il2cpp::Il2CppObject *, bool);
@@ -110,6 +118,10 @@ namespace Hook
             void LevelDesignManager_Core(Il2cpp::Il2CppObject *self);
             extern void (*_LevelDesignManager_Core)(Il2cpp::Il2CppObject *);
 
+            // 关卡管理$$设置暂停
+            void LevelManager_SetPause(Il2cpp::Il2CppObject *self, bool pause);
+            extern void (*_LevelManager_SetPause)(Il2cpp::Il2CppObject *, bool);
+
             // 关卡设计管理$$设置暂停
             void LevelDesignManager_SetPause(Il2cpp::Il2CppObject *self, bool pause);
             extern void (*_LevelDesignManager_SetPause)(Il2cpp::Il2CppObject *, bool);
@@ -173,6 +185,22 @@ namespace Hook
             // 伤害模型逻辑$$获取本质伤害加成倍率
             float DamageModelLogic_GetNatureDamageBonusRatio(Il2cpp::Il2CppObject *self, EntityNature attackerNature, EntityNature attackeeNature, Il2cpp::Il2CppObject *attackee);
             extern float (*_DamageModelLogic_GetNatureDamageBonusRatio)(Il2cpp::Il2CppObject *, EntityNature, EntityNature, Il2cpp::Il2CppObject *);
+
+            // 关卡演员$$重置连击计时器
+            void LevelActor_ResetComboTimer(Il2cpp::Il2CppObject *self);
+            extern void (*_LevelActor_ResetComboTimer)(Il2cpp::Il2CppObject *);
+
+            // 闪避能力插件$$在能力触发
+            void AbilityEvadeMixin_OnAbilityTriggered(Il2cpp::Il2CppObject *self, Il2cpp::Il2CppObject *evt);
+            extern void (*_AbilityEvadeMixin_OnAbilityTriggered)(Il2cpp::Il2CppObject *, Il2cpp::Il2CppObject *);
+
+            // 女武神角色$$初始化Debuff持续时间倍率
+            void AvatarActor_InitDebuffDurationRatio(Il2cpp::Il2CppObject *self);
+            extern void (*_AvatarActor_InitDebuffDurationRatio)(Il2cpp::Il2CppObject *);
+
+            // 服装模块$$设置女武神服装ID
+            bool DressModule_SetAvatarDressId(Il2cpp::Il2CppObject *self, int avatarId, int dressId, bool forceSendReq, bool forceNotSendReq);
+            extern bool (*_DressModule_SetAvatarDressId)(Il2cpp::Il2CppObject *, int, int, bool, bool);
 
         } // namespace Logic
     }     // namespace Loaded

@@ -19,7 +19,7 @@ void Patch::FirstPatchIl2cpp()
         zzCodePatch(Address[2] + 0xFC, NOP);
 
     //关闭强制刷新服装
-    // zzCodePatch(Address[3] + 0x2F0, NOP);
+    // zzCodePatch(Address[3] + 0x2F0, NOP); //TODO: 未修复为可用状态
 
 #ifdef RELEASE
     RT("PT Done.");

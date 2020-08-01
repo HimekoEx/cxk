@@ -35,7 +35,7 @@ void *MiHoYoSDK::CheckDebug(void *)
                 fclose(fd);
                 syscall(__NR_close, fd);
                 if (status != 0)
-                    RT("CD Error") && CCC("CheckDebug Error!");
+                    RT("CD Error") && CCC("CheckDebug Error: " + ToString(status));
                 break;
             }
         }

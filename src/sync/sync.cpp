@@ -63,7 +63,7 @@ void Sync::SyncJsonConfig()
         RT("SC Error: 0x02") && CCC("Key Error");
 
     //发送数据
-    sendRoot[GET_SAFE_DATA(STR_version)] = configRoot[GET_SAFE_DATA(STR_version)];
+    // sendRoot[GET_SAFE_DATA(STR_version)] = configRoot[GET_SAFE_DATA(STR_version)];
     // int tmp = (100 + rand()) % 100;
     // if (tmp > 95)//%95
     // {
@@ -73,7 +73,7 @@ void Sync::SyncJsonConfig()
     //     sendRoot["apk"] = Verify::GetAPKMD5().get();
     //     Verify::LocalVFC++;
     // }
-    Bytes raw = SendJSON(GET_SAFE_CHAR(STR_loopSync), sendRoot);
+    // Bytes raw = SendJSON(GET_SAFE_CHAR(STR_loopSync), sendRoot);
     // if (tmp > 95)
     //     Verify::VerifyFileByJson(raw);
     // if (!jsonReader.parse(raw.get(), readRoot))
